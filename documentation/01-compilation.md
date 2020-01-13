@@ -33,7 +33,7 @@ It has the following general syntax:
 ``` sh
 ./install.sh -k <kind> -p <platform> [-g] [--clean]
 # E.g.
-# ./install.sh -k A -p macos_homebrew -g
+# ./install.sh -k E -p macos_homebrew -g
 ```
 
 The options above are as follows:
@@ -44,9 +44,9 @@ The options above are as follows:
 - `--clean` -- If included, this will delete all compiled files and the binary corresponding to the installation "kind" and platform. Note that all of the other flags are required for this to work. I.e. To recompile ED2 from scratch, you'll need to run something like:
   ```sh
   # Clear the current installation
-  ./install.sh -k A -p macos_homebrew -g --clean
+  ./install.sh -k E -p macos_homebrew -g --clean
   # Install
-  ./install.sh -k A -p macos_homebrew -g
+  ./install.sh -k E -p macos_homebrew -g
   ```
 
 This install script will create a directory of compiled `.o` objects, a statically-compiled library (`ed_2.2-opt.a`), and the executable itself `ed_2.2-opt`.
