@@ -59,6 +59,16 @@ Using Homebrew, install (`brew install`) the following libraries:
 - `gfortran`: The GCC Fortran compiler
 - `hdf5`: Libraries for HDF5 files
 
+Then, compile using platform `macos_homebrew`:
+
+``` sh
+./install.sh -k E -p macos_homebrew -g
+```
+
+Note that parallel execution via MPI is currently disabled on MacOS.
+This means that any given ED2 simulation will on a single core.
+This should only be an issue for multi-site simulations (e.g. regional runs over spatial grid); for single-site simulations, the slight overhead associated with MPI might actually make runs slightly _faster_.
+
 ### Special instructions for PIC
 
 TODO
