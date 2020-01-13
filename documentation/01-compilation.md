@@ -48,7 +48,7 @@ The options above are as follows:
   # Install
   ./install.sh -k A -p macos_homebrew -g
   ```
-  
+
 This install script will create a directory of compiled `.o` objects, a statically-compiled library (`ed_2.2-opt.a`), and the executable itself `ed_2.2-opt`.
 
 ### Special instructions for MacOS
@@ -60,3 +60,81 @@ Using Homebrew, install (`brew install`) the following libraries:
 - `hdf5`: Libraries for HDF5 files
 
 ### Special instructions for PIC
+
+TODO
+
+## Test run
+
+ED2 ships with a basic set of tests that can be used to check that its functionality works.
+These are stored in the `EDTS` directory in the repository root.
+Doing a test run at UMBS from bare ground is as simple as:
+
+``` sh
+cd EDTS
+./run-test umbs.bg ../ED/build/ed_2.2-opt
+```
+
+This script will download the required input files and perform a test simulation.
+For more info on how this works, see the `EDTS/README.md` file.
+
+This test produces monthly output files that will be stored in `EDTS/test-outputs/umbs.bg/`.
+Here is an example R script that reads NPP, GPP, and autotrophic and heterotrophic respiration from these files and generates a simple plot.
+
+``` r
+library(ncdf4)
+
+# Replace with your to ED2 root directory
+ed2_dir <- "~/Projects/edmodel/ed2-umbs-test/"
+
+outdir <- file.path(
+  ed2_dir,
+  "EDTS/test-outputs/umbs.bg"
+)
+ncfiles <- list.files(outdir, full.names = TRUE)
+
+# Look at one file
+nc1 <- nc_open(ncfiles[1])
+
+# List all available variable names
+names(nc1$var)
+#>   [1] "AGB_CO"                      "AGB_PY"
+#>   [3] "AGE"                         "AREA"
+#>   [5] "AREA_SI"                     "AVG_MONTHLY_WATERDEF"
+# <...>
+#>  [75] "MMEAN_ALBEDO_NIR_PY"         "MMEAN_ALBEDO_PAR_PY"
+#>  [77] "MMEAN_ALBEDO_PY"             "MMEAN_ATM_CO2_PY"
+#>  [79] "MMEAN_ATM_PAR_DIFF_PY"       "MMEAN_ATM_PAR_PY"
+#>  [81] "MMEAN_ATM_PRSS_PY"           "MMEAN_ATM_RHOS_PY"
+# <...>
+#> [325] "SLXSAND"                     "SLZ"
+#> [327] "VEG_HEIGHT"                  "VEG_ROUGH"
+#> [329] "VM_BAR"                      "WAI_CO"
+#> [331] "WAI_PY"                      "WORKLOAD"
+#> [333] "XATM"                        "YATM"
+
+# Read multiple variables from a single file as colums of a data.frame
+read_vars <- function(file, vars) {
+  nc <- ncdf4::nc_open(file)
+  # Probably not strictly necessary, but good practice
+  on.exit(ncdf4::nc_close(nc), add = TRUE)
+  result_list <- lapply(vars, ncdf4::ncvar_get, nc = nc)
+  names(result_list) <- vars
+  do.call(data.frame, result_list)
+}
+
+# Net (NPP) and Gross (GPP) primary productivity,
+# heterotrophic respiration (RH), and autotrophic (plant) respiration (PLRESP).
+# `MMEAN` means "monthly mean".
+# `PY` means for the entire patch.
+vars <- sprintf("MMEAN_%s_PY", c("NPP", "GPP", "RH", "PLRESP"))
+results <- lapply(ncfiles, read_vars, vars = vars)
+result_df <- do.call(rbind, results)
+
+par(mfrow = c(2, 2))
+for (v in vars) {
+  plot(result_df[[v]], type = "l",
+       xlab = "Month", ylab = v)
+}
+```
+
+![](https://i.imgur.com/nT7uGcO.png)
