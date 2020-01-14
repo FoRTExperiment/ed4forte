@@ -1,5 +1,6 @@
+library(ed4forte)
+
 stopifnot(
-  requireNamespace("PEcAn.data.atmosphere", quietly = TRUE),
   requireNamespace("here", quietly = TRUE),
   requireNamespace("future", quietly = TRUE),
   requireNamespace("PEcAn.ED2", quietly = TRUE)
@@ -13,7 +14,7 @@ outdir <- here::here("unsynced-data", "narr")
 dir.create(outdir, showWarnings = FALSE, recursive = TRUE)
 
 future::plan("multicore")
-dl <- PEcAn.data.atmosphere::download.NARR_site(outdir, start_date, end_date, lat, lon)
+dl <- download.NARR_site(outdir, start_date, end_date, lat, lon)
 
 outdir_ed <- here::here("unsynced-data", "narr-ed")
 ed_met <- PEcAn.ED2::met2model.ED2(outdir, "NARR", outdir_ed,
