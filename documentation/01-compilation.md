@@ -58,6 +58,7 @@ Using Homebrew, install (`brew install`) the following libraries:
 
 - `gfortran`: The GCC Fortran compiler
 - `hdf5`: Libraries for HDF5 files
+= `wget`: GNU Project that retrieves data from the internet
 
 Then, compile using platform `macos_homebrew`:
 
@@ -81,7 +82,7 @@ Doing a test run at UMBS from bare ground is as simple as:
 
 ``` sh
 cd EDTS
-./run-test umbs.bg ../ED/build/ed_2.2-opt
+./run-test.sh umbs.bg ../ED/build/ed_2.2-opt
 ```
 
 This script will download the required input files and perform a test simulation.
