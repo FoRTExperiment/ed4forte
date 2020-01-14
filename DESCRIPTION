@@ -1,7 +1,7 @@
 Package: ed4forte
 Title: FoRTE-specific utilities for working with ED2
 Version: 0.0.0.9000
-Authors@R: 
+Authors@R:
     person(given = "Alexey",
            family = "Shiklomanov",
            role = c("aut", "cre"),
@@ -12,3 +12,16 @@ Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.1.1
+Imports:
+    parallel,
+    dplyr,
+    tidyr,
+    lubridate,
+    ncdf4,
+    purrr,
+    udunits2,
+    tibble,
+    sp
+Suggests:
+    furrr,
+    progress
