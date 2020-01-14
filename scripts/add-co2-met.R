@@ -13,22 +13,6 @@ library(tidyr)
 
 requireNamespace("PEcAn.ED2", quietly = TRUE)
 
-local_dir <- here("unsynced-data")
-local_in_dir <- path(local_dir, "narr-ed") %>% dir_create()
-local_out_dir <- path(local_dir, "narr-ed-co2") %>% dir_create()
-
-# Copy all the files from in to out
-.cp <- dir_copy(local_in_dir, local_out_dir, overwrite = TRUE)
-
-# Read all the met files in as a tidy data.frame
-met_ts <- tibble(
-  full_path = dir_ls(local_out_dir, glob = "*.h5"),
-  fname = path_file(full_path),
-  date = str_remove(fname, "\\.h5$") %>% parse_date_time("ym")
-) %>% arrange(date)
-
-summary(met_ts)
-
 law_dome_file <- here("extdata", "law2006.txt")
 law_dome_raw <- readLines(law_dome_file)
 ld_start <- 2464
@@ -55,7 +39,8 @@ de08 <- ld_sub %>%
 # Convert DO08 years to dates. Assume January 1.
 # TODO: Interpolate with more granulatity? Better assumption?
 de08_date <- de08 %>%
-  mutate(date = as.POSIXct(sprintf("%.0f-01-01 00:00:00", CO2gasAge))) %>%
+  mutate(date = as.POSIXct(sprintf("%.0f-01-01T00:00:00", CO2gasAge),
+                           tz = "UTC")) %>%
   select(date, law_dome = co2) %>%
   # Remove duplicates -- take the earlier value
   group_by(date) %>%
@@ -66,7 +51,8 @@ mlo_file <- here("extdata", "co2_mm_mlo.txt")
 mlo_cols <- c("year", "month", "decimal_year", "average", "interpolated", "trend", "no_days")
 mlo_data <- read_table(mlo_file, skip = 72, col_names = mlo_cols) %>%
   mutate_at(vars(average, interpolated), ~if_else(. < 0, NA_real_, .)) %>%
-  mutate(date = as.POSIXct(sprintf("%.0f-%.0f-15", year, month))) %>%
+  mutate(date = as.POSIXct(sprintf("%.0f-%.0f-15T00:00:00", year, month),
+                           tz = "UTC")) %>%
   select(date, mauna_loa = interpolated)
 
 # Combine them both
@@ -81,8 +67,8 @@ if (interactive()) {
   plot(co2 ~ date, data = co2_record, type = "l")
 }
 
-start_date <- as.POSIXct("1890-01-01 00:00:00")
-end_date <- as.POSIXct("2019-12-31 23:59:59")
+start_date <- as.POSIXct("1890-01-01T00:00:00", tz = "UTC")
+end_date <- as.POSIXct("2019-12-31T23:59:59", tz = "UTC")
 co2_record_6hr <- tibble(
   date = seq(start_date, end_date, by = "6 hours"),
   co2 = approx(
@@ -104,14 +90,6 @@ co2_record_nested_all <- co2_record_6hr %>%
   group_by(date_floor) %>%
   nest()
 
-stop(
-  "TODO: This part is not done yet. ",
-  "Need to fuse the other met data before adding the CO2."
-)
-
-co2_record_nested <- co2_record_nested_all %>%
-  inner_join(met_ts, by = c("date_floor" = "date"))
-
 add_co2 <- function(file, data) {
   co2 <- data[["co2"]]
   co2_array <- array(co2, c(length(co2), 1, 1))
@@ -121,16 +99,53 @@ add_co2 <- function(file, data) {
   invisible(TRUE)
 }
 
-co2_wrote <- co2_record_nested %>%
-  mutate(wrote = map2_lgl(full_path, data, possibly(add_co2, FALSE)))
+local_dir <- here("unsynced-data", "meteorology")
+for (metdir in c("NARR-ED2", "CRUNCEP-ED2")) {
+  message("Adding CO2 to ", metdir)
+  local_in_dir <- path(local_dir, metdir)
+  local_out_dir <- path(local_dir, paste0(metdir, "-CO2")) %>% dir_create()
 
-filter(co2_wrote, !wrote)
+  update_freq <- switch(
+    metdir,
+    "NARR-ED2" = 3 * 60 * 60,      # 3-hourly
+    "CRUNCEP-ED2" = 6 * 60 * 60,   # 6-hourly
+    stop("Unkonwn")
+  )
 
-# Write out the revised ED met header
-emh <- PEcAn.ED2::read_ed_metheader(path(local_out_dir, "ED_MET_DRIVER_HEADER"),
-                                    check = FALSE, check_files = FALSE)
-emh[[1]][["path_prefix"]] <- "/data/dbfiles/CUSTOM_ED2_site_1-33/"
-emh[[1]][["variables"]] <- emh[[1]][["variables"]] %>%
-  filter(variable != "co2") %>%
-  add_row(variable = "co2", flag = 1, update_frequency = 21600)
-PEcAn.ED2::write_ed_metheader(emh, path(local_out_dir, "ED_MET_DRIVER_HEADER"))
+  # Copy all the files from in to out
+  .cp <- dir_copy(local_in_dir, local_out_dir, overwrite = TRUE)
+
+  # Read all the met files in as a tidy data.frame
+  met_ts <- tibble(
+    full_path = dir_ls(local_out_dir, glob = "*.h5"),
+    fname = path_file(full_path),
+    date = str_remove(fname, "\\.h5$") %>% parse_date_time("ym", tz = "UTC")
+  ) %>% arrange(date)
+
+  co2_record_nested <- co2_record_nested_all %>%
+    inner_join(met_ts, by = c("date_floor" = "date"))
+
+  co2_wrote <- co2_record_nested %>%
+    mutate(wrote = map2_lgl(full_path, data, possibly(add_co2, FALSE)))
+
+  fail <- filter(co2_wrote, !wrote)
+  if (nrow(fail) > 1) {
+    warning("Failed to write ", nrow(fail), "files for ", metdir)
+  }
+
+  # Write out the revised ED met header
+  emh <- PEcAn.ED2::read_ed_metheader(
+    path(local_out_dir, "ED_MET_DRIVER_HEADER"),
+    check = FALSE,
+    check_files = FALSE
+  )
+  emh[[1]][["path_prefix"]] <- paste0("unsynced-data/meteorology/",
+                                      basename(local_out_dir))
+  emh[[1]][["variables"]] <- emh[[1]][["variables"]] %>%
+    filter(variable != "co2") %>%
+    add_row(variable = "co2", flag = 1, update_frequency = update_freq)
+  PEcAn.ED2::write_ed_metheader(
+    emh,
+    path(local_out_dir, "ED_MET_DRIVER_HEADER")
+  )
+}
