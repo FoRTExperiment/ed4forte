@@ -80,10 +80,10 @@ Running ED2 on PIC requires a precise combination of modules, as well as buildin
    module purge
    ```
    
-2. Load specific versions of `gcc` and `mvapich2` required for ED2 to work.
+2. Load the specific versions of `gcc` required for ED2 to work.
 
    ``` sh
-   module load gcc/5.2.0 mvapich2/2.1
+   module load gcc/5.2.0
    ```
    
    Confirm that you have the right version of `gcc` with `gcc --version` -- make sure that it is 5.2.0.
@@ -165,11 +165,14 @@ First, copy the existing `include.mk.gfortran` file.
     
     (2) Set `USE_MPIWTIME` to 0.
     
-    (3) Change the values of `F_COMP` and `LOADER` to `gfortran`, and `C_COMP` to `gcc` (i.e `F_COMP=gfortran`, `C_COMP=gcc`)
+    (3) Change the values of `F_COMP` and `LOADER` to `gfortran`, and `C_COMP` to `gcc` (i.e `F_COMP=gfortran`, `C_COMP=gcc`).
     
     (4) Remove all occurrences of `-fopenmp` from `F_OPTS` and `C_OPTS` in both the first and second `KIND_COMP` sections.
     
     (5) Comment out the `MPI_PATH`, `PAR_INCS`, `PAR_LIBS`, and `PAR_DEFS` variables.
+    
+    Explanation: (1) and (2) make sure you are using the version of HDF5 that you compiled with the correct version of GCC.
+    (3), (4), and (5) disable MPI execution, which requires a lot of special flags and extra modules to work, and does nothing (or may even be counterproductive) for single-site runs.
     
     Save the file and exit.
     
