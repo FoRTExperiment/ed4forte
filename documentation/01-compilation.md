@@ -72,8 +72,127 @@ This should only be an issue for multi-site simulations (e.g. regional runs over
 
 ### Special instructions for PIC
 
-TODO
+Running ED2 on PIC requires a precise combination of modules, as well as building one dependency by hand.
 
+1. Unload all currently loaded modules.
+   
+   ```sh
+   module purge
+   ```
+   
+2. Load specific versions of `gcc` and `mvapich2` required for ED2 to work.
+
+   ``` sh
+   module load gcc/5.2.0 mvapich2/2.1
+   ```
+   
+   Confirm that you have the right version of `gcc` with `gcc --version` -- make sure that it is 5.2.0.
+   
+   **NOTE:** ED2 needs the correct modules not only for compilation, but also to run.
+
+3. Download and install HDF5 from source.
+This is the version we will use for ED2.
+It's a good idea to do all of these steps in a new directory -- I'll call it `~/custom-hdf5`.
+
+   ``` sh
+   mkdir ~/custom-hdf5
+   cd ~/custom-hdf5
+   ```
+
+  a. Download and extract the source code tarball and enter it.
+  
+      ``` sh
+      wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-1.10.6/src/hdf5-1.10.6.tar.gz
+      tar xvf hdf5-1.10.6.tar.gz
+      cd hdf5-1.10.6
+      ```
+  
+  b. Run the configure script to set up the compilation. 
+  There are two important configuration flags to set:
+  The installation prefix (`--prefix ${HOME}/custom-hdf5`)
+  and that enabling Fortran (`--enable-fortran`).
+  
+      ``` sh
+      ./configure --prefix=${HOME}/custom-hdf5 --enable-fortran
+      ```
+      
+  Make sure this command completes without errors -- at the end, you should see a list of options that have and have not been enabled.
+     
+   c. Compile HDF5.
+   This will probably take a while and will produce a lot of output.
+   
+       ``` sh
+       make install
+       ```
+       
+   Again, check that this did not exit with errors (there will be a lot of warnings, which can be ignored).
+   
+   d. Check that HDF5 compiled by running one of the compiled executables.
+   
+       ``` sh
+       ~/custom-hdf5/bin/h5dump --version
+       ```
+       
+4. Clone the ED2 source code and switch to the ED-2.2 branch (`mpaiao_pr`).
+(I'm returning to your home directory and assuming commands are happening from there, but you can do this in any directory you want.)
+
+    ``` sh
+    cd ~
+    git clone https://github.com/edmodel/ed2
+    cd ed2
+    git checkout -b mpaiao_pr origin/mpaiao_pr
+    ```
+    
+5. We need to create a new `include.mk.pic` file with special compilation settings for PIC.
+First, copy the existing `include.mk.gfortran` file.
+
+    ``` sh
+    cp ED/build/make/include.mk.gfortran ED/build/make/include.mk.pic
+    ```
+    
+    Now, open the file in a text editor (I assume `vim`)...
+    
+    ``` sh
+    vim ED/build/make/include.mk.pic
+    ```
+    
+    ...and make the following changes:
+    
+    (1) Set the `HDF5_HOME` value to `/your/home/directory/custom-hdf5`, replacing `/your/home/directory` with the absolute path of your home directory (you can find it out by `cd ~` followed by `pwd`).
+    
+    (2) Add the following to the beginning of `HDF5_LIBS`: `-L${HDF5_HOME}/lib`.
+    It should now look like `HDF5_LIBS=-L${HDF5_HOME}/lib -lhdf5 -lhdf5_fortran -lhdf5_hl -lz`.
+    
+    (2) Set `USE_MPIWTIME` to 0.
+    
+    (3) Change the values of `F_COMP` and `LOADER` to `gfortran`, and `C_COMP` to `gcc` (i.e `F_COMP=gfortran`, `C_COMP=gcc`)
+    
+    (4) Remove all occurrences of `-fopenmp` from `F_OPTS` and `C_OPTS` in both the first and second `KIND_COMP` sections.
+    
+    (5) Comment out the `MPI_PATH`, `PAR_INCS`, `PAR_LIBS`, and `PAR_DEFS` variables.
+    
+    Save the file and exit.
+    
+6. Now, we can compile ED2.
+Change into the build directory...
+
+    ``` sh
+    cd ED/build
+    ```
+    
+    ...and run the `install.sh` script, specifying the correct platform and compilation kind.
+    
+    ``` sh
+    ./install.sh -k E -p pic -g
+    ```
+    
+    If you immediately see a bunch of warnings about "non-existent include directory", stop the compilation and check the paths in the `include.mk.pic` file.
+    
+7. Once this finishes, try a test UMBS run. 
+If it succeeds, you are good to go!
+
+    
+    
 ## Test run
 
 ED2 ships with a basic set of tests that can be used to check that its functionality works.
