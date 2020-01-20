@@ -31,3 +31,74 @@ This script will run for a maximum of 2 days, on 1 node, and will send both outp
 **NOTE**: Any relative paths in the `ED2IN`, `ED_MET_DRIVER_HEADER`, and any other files that specify paths, are relative to **current working directory**; i.e. the directory from which ED2 is executed (or from which the `sbatch` command is executed).
 It may be a good idea to tweak any input files used for PIC simulations to use absolute paths to avoid ambiguity.
 On the other hand, relative paths are more portable in case you want to copy directories to different places.
+
+## Running multiple ED2 simulations in parallel
+
+If you compiled ED2 without MPI support (i.e. followed the exact compilation instructions in this repository), an ED2 simulation will use only a single core.
+A typical PIC node has 24 cores, so you can run up to 24 instances of ED2 in parallel on a single node.
+The way to do this is to use a script similar to the one above, but to run each ED2 simulation in the background:
+
+``` sh
+#!/bin/bash
+#SBATCH -A forteproject
+#...etc...
+
+# Assuming you have 5 runs you want to do, each with a dedicated ED2IN.runX file
+# The `>& file` redirects stdout and stderr to `file`.
+# The trailing `&` means run that particular process in the background.
+/path/to/ed2/ED/build/ed_2.2-opt -f /path/to/my/ED2IN.run1 >& /qfs/projects/forteproject/logs/run1.log &
+/path/to/ed2/ED/build/ed_2.2-opt -f /path/to/my/ED2IN.run2 >& /qfs/projects/forteproject/logs/run2.log &
+/path/to/ed2/ED/build/ed_2.2-opt -f /path/to/my/ED2IN.run3 >& /qfs/projects/forteproject/logs/run3.log &
+/path/to/ed2/ED/build/ed_2.2-opt -f /path/to/my/ED2IN.run4 >& /qfs/projects/forteproject/logs/run4.log &
+/path/to/ed2/ED/build/ed_2.2-opt -f /path/to/my/ED2IN.run5 >& /qfs/projects/forteproject/logs/run5.log &
+
+# This tells the script to `wait` until all background processes have finished
+wait
+
+# Finally, print this before exiting!
+echo "All simulations finished!"
+```
+
+For large numbers of simulations, you can abbreviate this with a bash `for-do` loop:
+
+``` sh
+for I in $(seq 1 24); do
+    echo "Submitting run $I"
+    /path/toed2/ED/build/ed_2.2-opt -f /path/to/my/ED2IN.run$I >& /qfs/projects/forteproject/logs/run$I.log &
+done
+
+wait
+
+echo "All simulations finished!"
+```
+
+For running more than 24 simulations, I would recommend combining this with array jobs.
+If you want to do 100 simulations, at 24 per run, you need to request 5 array jobs.
+For array index $I$, each job needs to do runs $1 + 24 \times (I - 1)$ to $24 \times I$.
+This can be done with a bash script like the following.
+
+``` sh
+#!/bin/bash
+#SBATCH ... # standard SBATCH instructions
+#SBATCH --array=1-5
+
+# `$((...))` is bash syntax for integer calculations.
+# The `...` expression is evaluated as simple math.
+IM1=$(($SLURM_ARRAY_TASK_ID - 1))
+A=$((1 + 24 * $IM1))
+B=$((24 * $SLURM_ARRAY_TASK_ID))
+
+# This uses the bash "condition operator" `?` to perform a simple conditional:
+# If $B is greater than 100, then set it to 100; otherwise, just use the value
+# of $B. This prevents us from trying to submit runs for which ED2IN files
+# don't exist.
+B=$(($B > 100 ? 100 : $B))
+
+echo "Running simulations $A to $B"
+for I in $(seq $A $B); do
+    echo "Submitting run $I"
+    /path/toed2/ED/build/ed_2.2-opt -f /path/to/my/ED2IN.run$I >& /qfs/projects/forteproject/logs/run$I.log &
+done
+wait
+echo "Done!"
+```
