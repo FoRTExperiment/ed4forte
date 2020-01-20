@@ -43,6 +43,9 @@ The way to do this is to use a script similar to the one above, but to run each 
 #SBATCH -A forteproject
 #...etc...
 
+module purge
+module load gcc/5.2.0
+
 # Assuming you have 5 runs you want to do, each with a dedicated ED2IN.runX file
 # The `> file` redirects stdout to `file`.
 # The `2>&1` redirects stderr (2) to the same place as stdout (&1), which is to `file`.
@@ -82,6 +85,9 @@ This can be done with a bash script like the following.
 #!/bin/bash
 #SBATCH ... # standard SBATCH instructions
 #SBATCH --array=1-5
+
+module purge
+module load gcc/5.2.0
 
 # `$((...))` is bash syntax for integer calculations.
 # The `...` expression is evaluated as simple math.
@@ -128,10 +134,21 @@ You can automate this process with bash as follows:
 runAndProcess() {
     # Bash cannot do named function arguments, only positional ones
     $RUNNUMBER=$1
+    
+    # Load modules for ED2
+    module purge
+    module load gcc/5.2.0
+    ulimit -s unlimited
+
     echo "Submitting run $RUNNUMBER"
     /path/to/ed2/ED/build/ed_2.2-opt -f /path/to/my/ED2IN.run$RUNNUMBER 
 
     # Once the simulation is complete, process the output
+    # But first, load modules for R!
+    # (Replace with whatever modules are associated with your R setup)
+    module purge
+    module load gcc/8.1.0 netcdf/4.4.1.1 R/3.5.1
+    
     echo "Reading outputs"
     Rscript /path/to/process-output.R /path/to/output/run$RUNNUMBER
     echo "Done with run $RUNNUMBER"
