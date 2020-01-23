@@ -99,27 +99,27 @@ It's a good idea to do all of these steps in a new directory -- I'll call it `~/
    cd ~/custom-hdf5
    ```
 
-  1. Download and extract the source code tarball and enter it.
+    1. Download and extract the source code tarball and enter it.
   
-      ```sh
-      wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-1.10.6/src/hdf5-1.10.6.tar.gz
-      tar xvf hdf5-1.10.6.tar.gz
-      cd hdf5-1.10.6
-      ```
+       ```sh
+       wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-1.10.6/src/hdf5-1.10.6.tar.gz
+       tar xvf hdf5-1.10.6.tar.gz
+       cd hdf5-1.10.6
+       ```
   
-  2. Run the configure script to set up the compilation. 
-     There are two important configuration flags to set:
-     The installation prefix (`--prefix ${HOME}/custom-hdf5`)
-     and that enabling Fortran (`--enable-fortran`).
+    2. Run the configure script to set up the compilation. 
+       There are two important configuration flags to set:
+       The installation prefix (`--prefix ${HOME}/custom-hdf5`)
+       and that enabling Fortran (`--enable-fortran`).
   
-      ```sh
-      ./configure --prefix=${HOME}/custom-hdf5 --enable-fortran
-      ```
+       ```sh
+       ./configure --prefix=${HOME}/custom-hdf5 --enable-fortran
+       ```
       
       Make sure this command completes without errors -- at the end, you should see a list of options that have and have not been enabled.
      
-   3. Compile HDF5.
-      This will probably take a while and will produce a lot of output.
+    3. Compile HDF5.
+       This will probably take a while and will produce a lot of output.
    
        ```sh
        make install
@@ -127,7 +127,7 @@ It's a good idea to do all of these steps in a new directory -- I'll call it `~/
        
        Again, check that this did not exit with errors (there will be a lot of warnings, which can be ignored).
    
-   4. Check that HDF5 compiled by running one of the compiled executables.
+    4. Check that HDF5 compiled by running one of the compiled executables.
    
        ```sh
        ~/custom-hdf5/bin/h5dump --version
