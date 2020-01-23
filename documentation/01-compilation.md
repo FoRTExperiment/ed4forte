@@ -75,19 +75,19 @@ This should only be an issue for multi-site simulations (e.g. regional runs over
 Running ED2 on PIC requires a precise combination of modules, as well as building one dependency by hand.
 
 1. Unload all currently loaded modules.
-   
+
    ```sh
    module purge
    ```
-   
+
 2. Load the specific versions of `gcc` required for ED2 to work.
 
    ```sh
    module load gcc/5.2.0
    ```
-   
+
    Confirm that you have the right version of `gcc` with `gcc --version` -- make sure that it is 5.2.0.
-   
+
    **NOTE:** ED2 needs the correct modules not only for compilation, but also to run.
 
 3. Download and install HDF5 from source.
@@ -100,39 +100,39 @@ It's a good idea to do all of these steps in a new directory -- I'll call it `~/
    ```
 
     1. Download and extract the source code tarball and enter it.
-  
+
        ```sh
        wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-1.10.6/src/hdf5-1.10.6.tar.gz
        tar xvf hdf5-1.10.6.tar.gz
        cd hdf5-1.10.6
        ```
-  
-    2. Run the configure script to set up the compilation. 
+
+    2. Run the configure script to set up the compilation.
        There are two important configuration flags to set:
        The installation prefix (`--prefix ${HOME}/custom-hdf5`)
        and that enabling Fortran (`--enable-fortran`).
-  
+
        ```sh
        ./configure --prefix=${HOME}/custom-hdf5 --enable-fortran
        ```
-      
+
        Make sure this command completes without errors -- at the end, you should see a list of options that have and have not been enabled.
-     
+
     3. Compile HDF5.
        This will probably take a while and will produce a lot of output.
-   
+
        ```sh
        make install
        ```
-       
+
        Again, check that this did not exit with errors (there will be a lot of warnings, which can be ignored).
-   
+
     4. Check that HDF5 compiled by running one of the compiled executables.
-   
+
        ```sh
        ~/custom-hdf5/bin/h5dump --version
        ```
-       
+
 4. Clone the ED2 source code and switch to the ED-2.2 branch (`mpaiao_pr`).
 (I'm returning to your home directory and assuming commands are happening from there, but you can do this in any directory you want.)
 
@@ -142,55 +142,55 @@ It's a good idea to do all of these steps in a new directory -- I'll call it `~/
     cd ed2
     git checkout -b mpaiao_pr origin/mpaiao_pr
     ```
-    
+
 5. We need to create a new `include.mk.pic` file with special compilation settings for PIC.
 First, copy the existing `include.mk.gfortran` file.
 
     ```sh
     cp ED/build/make/include.mk.gfortran ED/build/make/include.mk.pic
     ```
-    
+
     Now, open the file in a text editor (I assume `vim`)...
-    
+
     ```sh
     vim ED/build/make/include.mk.pic
     ```
-    
+
     ...and make the following changes:
-    
+
     (1) Set the `HDF5_HOME` value to `/your/home/directory/custom-hdf5`, replacing `/your/home/directory` with the absolute path of your home directory (you can find it out by `cd ~` followed by `pwd`).
-    
+
     (2) Add the following to the beginning of `HDF5_LIBS`: `-L${HDF5_HOME}/lib`.
     It should now look like `HDF5_LIBS=-L${HDF5_HOME}/lib -lhdf5 -lhdf5_fortran -lhdf5_hl -lz`.
-    
+
     (2) Set `USE_MPIWTIME` to 0.
-    
+
     (3) Set `F_COMP=gfortran`, `C_COMP=gcc`, and `LOADER=gfortran`.
-    
+
     (4) Remove all occurrences of `-fopenmp` from `F_OPTS` and `C_OPTS` in both of the `KIND_COMP` sections.
-    
+
     (5) Comment out the `MPI_PATH`, `PAR_INCS`, `PAR_LIBS`, and `PAR_DEFS` variables.
-    
+
     Explanation: (1) and (2) make sure you are using the version of HDF5 that you compiled with the correct version of GCC.
     (3), (4), and (5) disable MPI execution, which requires a lot of special flags and extra modules to work, and does nothing (or may even be counterproductive) for single-site runs.
-    
+
     Save the file and exit.
-    
+
 6. Now, we can compile ED2.
 Change into the build directory...
 
     ```sh
     cd ED/build
     ```
-    
+
     ...and run the `install.sh` script, specifying the correct platform and compilation kind.
-    
+
     ```sh
     ./install.sh -k E -p pic -g
     ```
-    
+
     If you immediately see a bunch of warnings about "non-existent include directory", stop the compilation and check the paths in the `include.mk.pic` file.
-    
+
 7. The compilation should create a file like `ed_2.2-opt` in the current directory.
 This is the ED2 executable, and should technically be self-contained.
 However, because of how HDF5 libraries were installed, as well as the module dependencies, ED2 may not be able to run without a bit of additional configuration.
@@ -201,27 +201,27 @@ Such a script (let's call it `ED/build/ed2`) might look something like this:
     #!/bin/sh
 
     # Unload any currently loaded modules
-    # (only inside the script -- does not affect your interactive environment)  
+    # (only inside the script -- does not affect your interactive environment)
     module purge
-    
+
     # Load correct GCC module
     module load gcc/5.2.0
-    
+
     # Remove the stack limit -- may not be necessary, but sometimes prevents
     # segmentation faults.
     ulimit -s unlimited
-    
+
     # Add the custom HDF5 library path to the library search path
     export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/your/home/directory/custom-hdf5
-    
+
     # Run ED2, passing all command line arguments to it
     # (`$@` means "all arguments to the current script").
     # Note the absolute path to ED2 to make sure there is no ambiguity related to
     # the current working directory.
     /path/to/home/directory/ed2/ED/build/ed_2.2-opt $@
     ```
-    
-7. Once this finishes, try a test UMBS run. 
+
+7. Once this finishes, try a test UMBS run.
 If it succeeds, you are good to go!
 
 ## Test run
