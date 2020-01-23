@@ -54,10 +54,12 @@ vtable_args <- vtable_get_args(vtable_parse[, 2])
 
 meta_vals <- grep("call metadata_edio", sv2, value = TRUE)
 
-meta_sparen <- meta_vals %>%
+meta_args_raw <- meta_vals %>%
   str_remove("^call +") %>%
-  str_split(fixed("("), 2) %>%
+  str_split_fixed(fixed("("), 2) %>%
   .[, 2]
+
+meta_args
 
 meta_rows <- grep("call metadata_", sv2)
 meta_vals <- sv2[meta_rows]
