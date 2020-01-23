@@ -13,7 +13,7 @@ As of 2020-01-10, the big [ED-2.2 pull request](https://github.com/EDmodel/ED2/p
 Because this is what is documented in the [Longo et al. 2019 GMD paper](https://doi.org/10.5194/gmd-2019-45), this the branch you'll probably want to use.
 Switch to it:
 
-``` sh
+```sh
 git checkout mpaiao_pr
 ```
 
@@ -23,14 +23,14 @@ Refer to the ED2 repository README file for the general structure of the ED2 cod
 
 Switch into the build directory.
 
-``` sh
+```sh
 cd ED/build
 ```
 
 ED2 is installed via the `install.sh` script found in this directory.
 It has the following general syntax:
 
-``` sh
+```sh
 ./install.sh -k <kind> -p <platform> [-g] [--clean]
 # E.g.
 # ./install.sh -k E -p macos_homebrew -g
@@ -62,7 +62,7 @@ Using Homebrew, install (`brew install`) the following libraries:
 
 Then, compile using platform `macos_homebrew`:
 
-``` sh
+```sh
 ./install.sh -k E -p macos_homebrew -g
 ```
 
@@ -82,7 +82,7 @@ Running ED2 on PIC requires a precise combination of modules, as well as buildin
    
 2. Load the specific versions of `gcc` required for ED2 to work.
 
-   ``` sh
+   ```sh
    module load gcc/5.2.0
    ```
    
@@ -94,49 +94,49 @@ Running ED2 on PIC requires a precise combination of modules, as well as buildin
 This is the version we will use for ED2.
 It's a good idea to do all of these steps in a new directory -- I'll call it `~/custom-hdf5`.
 
-   ``` sh
+   ```sh
    mkdir ~/custom-hdf5
    cd ~/custom-hdf5
    ```
 
-  a. Download and extract the source code tarball and enter it.
+  1. Download and extract the source code tarball and enter it.
   
-      ``` sh
+      ```sh
       wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-1.10.6/src/hdf5-1.10.6.tar.gz
       tar xvf hdf5-1.10.6.tar.gz
       cd hdf5-1.10.6
       ```
   
-  b. Run the configure script to set up the compilation. 
+  2. Run the configure script to set up the compilation. 
   There are two important configuration flags to set:
   The installation prefix (`--prefix ${HOME}/custom-hdf5`)
   and that enabling Fortran (`--enable-fortran`).
   
-      ``` sh
+      ```sh
       ./configure --prefix=${HOME}/custom-hdf5 --enable-fortran
       ```
       
   Make sure this command completes without errors -- at the end, you should see a list of options that have and have not been enabled.
      
-   c. Compile HDF5.
+   3. Compile HDF5.
    This will probably take a while and will produce a lot of output.
    
-       ``` sh
+       ```sh
        make install
        ```
        
    Again, check that this did not exit with errors (there will be a lot of warnings, which can be ignored).
    
-   d. Check that HDF5 compiled by running one of the compiled executables.
    
-       ``` sh
+       ```sh
        ~/custom-hdf5/bin/h5dump --version
        ```
+   1. Check that HDF5 compiled by running one of the compiled executables.
        
 4. Clone the ED2 source code and switch to the ED-2.2 branch (`mpaiao_pr`).
 (I'm returning to your home directory and assuming commands are happening from there, but you can do this in any directory you want.)
 
-    ``` sh
+    ```sh
     cd ~
     git clone https://github.com/edmodel/ed2
     cd ed2
@@ -146,13 +146,13 @@ It's a good idea to do all of these steps in a new directory -- I'll call it `~/
 5. We need to create a new `include.mk.pic` file with special compilation settings for PIC.
 First, copy the existing `include.mk.gfortran` file.
 
-    ``` sh
+    ```sh
     cp ED/build/make/include.mk.gfortran ED/build/make/include.mk.pic
     ```
     
     Now, open the file in a text editor (I assume `vim`)...
     
-    ``` sh
+    ```sh
     vim ED/build/make/include.mk.pic
     ```
     
