@@ -116,7 +116,7 @@ It's a good idea to do all of these steps in a new directory -- I'll call it `~/
        ./configure --prefix=${HOME}/custom-hdf5 --enable-fortran
        ```
       
-      Make sure this command completes without errors -- at the end, you should see a list of options that have and have not been enabled.
+       Make sure this command completes without errors -- at the end, you should see a list of options that have and have not been enabled.
      
     3. Compile HDF5.
        This will probably take a while and will produce a lot of output.
