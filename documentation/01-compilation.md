@@ -165,9 +165,9 @@ First, copy the existing `include.mk.gfortran` file.
     
     (2) Set `USE_MPIWTIME` to 0.
     
-    (3) Change the values of `F_COMP` and `LOADER` to `gfortran`, and `C_COMP` to `gcc` (i.e `F_COMP=gfortran`, `C_COMP=gcc`).
+    (3) Set `F_COMP=gfortran`, `C_COMP=gcc`, and `LOADER=gfortran`.
     
-    (4) Remove all occurrences of `-fopenmp` from `F_OPTS` and `C_OPTS` in both the first and second `KIND_COMP` sections.
+    (4) Remove all occurrences of `-fopenmp` from `F_OPTS` and `C_OPTS` in both of the `KIND_COMP` sections.
     
     (5) Comment out the `MPI_PATH`, `PAR_INCS`, `PAR_LIBS`, and `PAR_DEFS` variables.
     
@@ -179,30 +179,58 @@ First, copy the existing `include.mk.gfortran` file.
 6. Now, we can compile ED2.
 Change into the build directory...
 
-    ``` sh
+    ```sh
     cd ED/build
     ```
     
     ...and run the `install.sh` script, specifying the correct platform and compilation kind.
     
-    ``` sh
+    ```sh
     ./install.sh -k E -p pic -g
     ```
     
     If you immediately see a bunch of warnings about "non-existent include directory", stop the compilation and check the paths in the `include.mk.pic` file.
     
+7. The compilation should create a file like `ed_2.2-opt` in the current directory.
+This is the ED2 executable, and should technically be self-contained.
+However, because of how HDF5 libraries were installed, as well as the module dependencies, ED2 may not be able to run without a bit of additional configuration.
+It's therefore a good idea to create a small wrapper script that will do the configuration steps and then call ED2.
+Such a script (let's call it `ED/build/ed2`) might look something like this:
+
+    ```sh
+    #!/bin/sh
+
+    # Unload any currently loaded modules
+    # (only inside the script -- does not affect your interactive environment)  
+    module purge
+    
+    # Load correct GCC module
+    module load gcc/5.2.0
+    
+    # Remove the stack limit -- may not be necessary, but sometimes prevents
+    # segmentation faults.
+    ulimit -s unlimited
+    
+    # Add the custom HDF5 library path to the library search path
+    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/your/home/directory/custom-hdf5
+    
+    # Run ED2, passing all command line arguments to it
+    # (`$@` means "all arguments to the current script").
+    # Note the absolute path to ED2 to make sure there is no ambiguity related to
+    # the current working directory.
+    /path/to/home/directory/ed2/ED/build/ed_2.2-opt $@
+    ```
+    
 7. Once this finishes, try a test UMBS run. 
 If it succeeds, you are good to go!
 
-    
-    
 ## Test run
 
 ED2 ships with a basic set of tests that can be used to check that its functionality works.
 These are stored in the `EDTS` directory in the repository root.
 Doing a test run at UMBS from bare ground is as simple as:
 
-``` sh
+```sh
 cd EDTS
 ./run-test.sh umbs.bg ../ED/build/ed_2.2-opt
 ```
