@@ -108,30 +108,30 @@ It's a good idea to do all of these steps in a new directory -- I'll call it `~/
       ```
   
   2. Run the configure script to set up the compilation. 
-  There are two important configuration flags to set:
-  The installation prefix (`--prefix ${HOME}/custom-hdf5`)
-  and that enabling Fortran (`--enable-fortran`).
+     There are two important configuration flags to set:
+     The installation prefix (`--prefix ${HOME}/custom-hdf5`)
+     and that enabling Fortran (`--enable-fortran`).
   
       ```sh
       ./configure --prefix=${HOME}/custom-hdf5 --enable-fortran
       ```
       
-  Make sure this command completes without errors -- at the end, you should see a list of options that have and have not been enabled.
+      Make sure this command completes without errors -- at the end, you should see a list of options that have and have not been enabled.
      
    3. Compile HDF5.
-   This will probably take a while and will produce a lot of output.
+      This will probably take a while and will produce a lot of output.
    
        ```sh
        make install
        ```
        
-   Again, check that this did not exit with errors (there will be a lot of warnings, which can be ignored).
+       Again, check that this did not exit with errors (there will be a lot of warnings, which can be ignored).
    
+   4. Check that HDF5 compiled by running one of the compiled executables.
    
        ```sh
        ~/custom-hdf5/bin/h5dump --version
        ```
-   1. Check that HDF5 compiled by running one of the compiled executables.
        
 4. Clone the ED2 source code and switch to the ED-2.2 branch (`mpaiao_pr`).
 (I'm returning to your home directory and assuming commands are happening from there, but you can do this in any directory you want.)
