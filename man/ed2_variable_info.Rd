@@ -61,6 +61,7 @@ definition):
 \item 10: Thermal, Up
 }
 \item A number (e.g. \code{5}) -- The hard-coded literal dimension size.
+\item \code{NA} (no dimension) indicates a scalar quantity (length = 1)
 }
 \item \code{code_variable} -- The variable name used in the ED2 source code
 \item \verb{in_<*>} -- Whether or not the variable is included in the corresponding

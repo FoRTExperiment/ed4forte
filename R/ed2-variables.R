@@ -18,8 +18,8 @@
 #'     - `ipatch` -- Number of patches. Typically 1, unless multiple patches
 #'     have been specified.
 #'     - `icohort` -- Number of cohorts. Changes on a monthly timestep.
-#'     - `ndcycle` -- Number of steps in the diurnal cycle output. See
-#'     `IQOUTPUT` documentation in the ED2IN file.
+#'     - `ndcycle` -- Number of steps in the diurnal cycle output. See output
+#'     variable `NDCYCLE` as well as `IQOUTPUT` documentation in the ED2IN file.
 #'     - `n_pft` -- Number of plant functional types (PFTs). Should be
 #'     hard-coded to 17. See the `INCLUDE_THESE_PFT` table in the ED2IN file for
 #'     (defualt) PFT definitions.
@@ -27,7 +27,10 @@
 #'     First value is for all plants with DBH <= 10cm, second value is 10 < DBH
 #'     <= 20, third value is 20 < DBH <= 30, etc., and the last value is DBH >
 #'     100cm.
-#'     - `nzg` -- Number of soil levels. Defined by the `NZG` variable in ED2IN.
+#'     - `nzg` -- Number of soil levels. Defined by the `NZG` variable in ED2IN
+#'     (and in the output).
+#'     - `n_hgt_class` -- Number of height classes. If ED2IN flag IFUSION is 0
+#'     (default) then 8; otherwise, 19.
 #'     - `iradprof` -- Radiation profile identifiers. Hard coded to 10, with
 #'     values corresponding to the following (PAR is "photosynthetically active
 #'     radiation", ~400-700nm wavelength; NIR is "near-infrared", ~700-2500nm
@@ -44,6 +47,7 @@
 #'         - 9: Thermal, Down
 #'         - 10: Thermal, Up
 #'     - A number (e.g. `5`) -- The hard-coded literal dimension size.
+#'     - `NA` (no dimension) indicates a scalar quantity (length = 1)
 #' - `code_variable` -- The variable name used in the ED2 source code
 #' - `in_<*>` -- Whether or not the variable is included in the corresponding
 #' output file (unless noted otherwise, the file letter code corresponds to the
