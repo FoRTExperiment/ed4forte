@@ -1,7 +1,10 @@
 # ED2 stuff useful for the FoRTE project
 
-- FoRTE (and PNNL) specific documentation
-- R functions, shell scripts, etc. for helping work with ED2
+- [FoRTE (and PNNL) specific documentation](documentation/)
+- [Helper scripts](scripts/)
+- Helper R functions:
+    - `ed2_variable_info` -- List of ED2 output variables, along with some metadata.
+    - `download.NARR_site` -- Download North American Regional Reanalysis (NARR) meteorology.
 
 Additional links:
 
