@@ -4,9 +4,19 @@
 \alias{get_NARR_thredds}
 \title{Retrieve NARR data using thredds}
 \usage{
-get_NARR_thredds(start_date, end_date, lat.in, lon.in, progress = TRUE,
-  narr_cache_dir = "narr_cache", overwrite_cache = FALSE,
-  drop_outside = TRUE, parallel = TRUE, ncores = 1, silent = FALSE)
+get_NARR_thredds(
+  start_date,
+  end_date,
+  lat.in,
+  lon.in,
+  progress = TRUE,
+  narr_cache_dir = "narr_cache",
+  overwrite_cache = FALSE,
+  drop_outside = TRUE,
+  parallel = TRUE,
+  ncores = 1,
+  silent = FALSE
+)
 }
 \arguments{
 \item{start_date}{Start date for meteorology}
@@ -21,7 +31,7 @@ get_NARR_thredds(start_date, end_date, lat.in, lon.in, progress = TRUE,
 Requires the \code{progress} package to be installed.}
 
 \item{narr_cache_dir}{Directory where to cache downloaded data. Default is
-\code{<outfolder>/narr_cache}.}
+\verb{<outfolder>/narr_cache}.}
 
 \item{overwrite_cache}{Delete existing cache? Default = \code{FALSE}}
 

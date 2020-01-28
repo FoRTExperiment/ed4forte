@@ -4,11 +4,22 @@
 \alias{download.NARR_site}
 \title{Download NARR time series for a single site}
 \usage{
-download.NARR_site(outfolder, start_date, end_date, lat.in, lon.in,
-  overwrite = FALSE, verbose = FALSE, progress = TRUE,
+download.NARR_site(
+  outfolder,
+  start_date,
+  end_date,
+  lat.in,
+  lon.in,
+  overwrite = FALSE,
+  verbose = FALSE,
+  progress = TRUE,
   narr_cache_dir = file.path(outfolder, "narr_cache"),
-  overwrite_cache = FALSE, parallel = TRUE,
-  ncores = parallel::detectCores(), silent = TRUE, ...)
+  overwrite_cache = FALSE,
+  parallel = TRUE,
+  ncores = parallel::detectCores(),
+  silent = TRUE,
+  ...
+)
 }
 \arguments{
 \item{outfolder}{Target directory for storing output}
@@ -28,7 +39,7 @@ download.NARR_site(outfolder, start_date, end_date, lat.in, lon.in,
 \item{progress}{Print a progress bar as data are being downloaded? Default = \code{TRUE}}
 
 \item{narr_cache_dir}{Directory where to cache downloaded data. Default is
-\code{<outfolder>/narr_cache}.}
+\verb{<outfolder>/narr_cache}.}
 
 \item{overwrite_cache}{Delete existing cache? Default = \code{FALSE}}
 
