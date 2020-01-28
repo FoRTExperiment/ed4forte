@@ -2,7 +2,10 @@
 
 export(download.NARR_site)
 export(ed2_variable_info)
+export(ed2in)
 export(get_NARR_thredds)
 export(latlon2lcc)
+export(read_ed2in)
 export(robustly)
+export(write_ed2in)
 importFrom(rgdal,checkCRSArgs)
