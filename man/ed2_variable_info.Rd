@@ -2,7 +2,7 @@
 % Please edit documentation in R/ed2-variables.R
 \name{ed2_variable_info}
 \alias{ed2_variable_info}
-\title{ED2 output variable list}
+\title{ED2 output variable table}
 \usage{
 ed2_variable_info(variables = NULL)
 }
@@ -10,10 +10,78 @@ ed2_variable_info(variables = NULL)
 \item{variables}{Optional character vector of parameters to query}
 }
 \value{
-\code{data.frame} of ED2 variable information
+\code{data.frame} of ED2 variable information. See "Details".
 }
 \description{
-ED2 output variable list
+Table of variable information extracted from the ED2 source code
+(\code{ed_state_vars.f90}).
+}
+\details{
+Columns in the output are as follows:
+\itemize{
+\item \code{variable} -- The variable name as it appears in the HDF5 output
+\item \code{description} -- Variable description
+\item \code{unit} -- Variable unit. \code{NA} indicuates unitless quantities. Some units
+are unspecified.
+\item \code{dimensions} -- What dimensions the variable has in the output. For
+instance, \verb{(n_pft,n_dbh,ipoly)} means the variable is stored in an array with
+one row (first dimension) per PFT, one column (second dimension) per DBH
+class, and polygons in the third dimension. Dimension value codes are as
+follows:
+\itemize{
+\item \code{ipoly} -- Number of polygons. For site-level runs, should be 1.
+\item \code{ipatch} -- Number of patches. Typically 1, unless multiple patches
+have been specified.
+\item \code{icohort} -- Number of cohorts. Changes on a monthly timestep.
+\item \code{ndcycle} -- Number of steps in the diurnal cycle output. See
+\code{IQOUTPUT} documentation in the ED2IN file.
+\item \code{n_pft} -- Number of plant functional types (PFTs). Should be
+hard-coded to 17. See the \code{INCLUDE_THESE_PFT} table in the ED2IN file for
+(defualt) PFT definitions.
+\item \code{n_dbh} -- Number of DBH classes, in 10cm increments (11 values total).
+First value is for all plants with DBH <= 10cm, second value is 10 < DBH
+<= 20, third value is 20 < DBH <= 30, etc., and the last value is DBH >
+100cm.
+\item \code{nzg} -- Number of soil levels. Defined by the \code{NZG} variable in ED2IN.
+\item \code{iradprof} -- Radiation profile identifiers. Hard coded to 10, with
+values corresponding to the following (PAR is "photosynthetically active
+radiation", ~400-700nm wavelength; NIR is "near-infrared", ~700-2500nm
+wavelength. "Beam" is direct radiation. Thermal radiation is diffuse by
+definition):
+\itemize{
+\item 1: PAR, Beam, Down
+\item 2: PAR, Beam, Up
+\item 3: PAR, Diffuse, Down
+\item 4: PAR, Diffuse, Up
+\item 5: NIR, Beam, Down
+\item 6: NIR, Beam, Down
+\item 7: NIR, Diffuse, Down
+\item 8: NIR, Diffuse, Up
+\item 9: Thermal, Down
+\item 10: Thermal, Up
+}
+\item A number (e.g. \code{5}) -- The hard-coded literal dimension size.
+}
+\item \code{code_variable} -- The variable name used in the ED2 source code
+\item \verb{in_<*>} -- Whether or not the variable is included in the corresponding
+output file (unless noted otherwise, the file letter code corresponds to the
+second letter in the ED2IN output type, so, for instance, \code{ISOUTPUT} produces
+files with the \verb{-S-} identifier):
+\itemize{
+\item \code{history} -- History restart files. ED2IN tag \code{ISOUTPUT}.
+\item \code{analysis} -- Instantaneous output ("fast analysis") files, one per
+time step. ED2IN tags \code{IFOUTPUT} and \code{IOOUTPUT}.
+\item \code{daily} -- Daily averages. ED2IN tag \code{IDOUTPUT}.
+\item \code{monthly} -- Monthly averages. ED2IN tag \code{IMOUTPUT}. File tag \verb{-E-}.
+\item \code{diurnal} -- Monthly averages of the diurnal cycle. ED2IN tag \code{IQOUTPUT}.
+\item \code{yearly} -- Yearly averages. ED2IN tag \code{IYOUTPUT}.
+\item \code{tower} -- "Tower" files; fast output, but aggregated to one file per
+year.
+}
+\item \code{glob_id} -- Not sure, but might be useful?
+\item \code{info_string} -- The raw file information string from which the variable
+name and output file was derived. Mostly for debugging.
+}
 }
 \author{
 Alexey Shiklomanov

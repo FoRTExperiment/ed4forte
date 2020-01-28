@@ -79,14 +79,31 @@ ed2_variables <- cbind(vtable_rest, meta_args) %>%
     info_string = ...10,
     description = ...13,
     unit = ...14,
-    grid = ...15
+    dimensions = ...15
   ) %>%
   mutate(
-    variable = str_extract(info_string, "^[A-Z_]+")
+    variable = str_extract(info_string, "^[A-Z_]+"),
+    in_history = grepl("hist", info_string),
+    in_analysis = grepl("anal|fast_keys", info_string),
+    in_daily = grepl("dail(_keys)?", info_string),
+    in_monthly = grepl("mont|eorq_keys", info_string),
+    in_diurnal = grepl("dcyc|eorq_keys", info_string),
+    in_yearly = grepl("year", info_string),
+    in_tower = grepl("opti|fast_keys", info_string),
+    # Clean up unit string
+    unit = trimws(unit) %>%
+      str_remove("^\\[ *") %>%
+      str_remove(" *]$") %>%
+      str_remove(" *#+ *$") %>%
+      na_if("NA") %>%
+      na_if("-") %>%
+      na_if("--") %>%
+      na_if("---") %>%
+      na_if("----")
   ) %>%
   select(
-    variable, description, unit, grid, code_variable,
-    glob_id, info_string, everything()
+    variable, description, unit, dimensions, code_variable,
+    starts_with("in"), glob_id, info_string, everything()
   )
 
-usethis::use_data(ed2_variables, internal = TRUE)
+usethis::use_data(ed2_variables, internal = TRUE, overwrite = TRUE)
