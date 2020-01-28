@@ -1,11 +1,13 @@
 library(stringr)
 library(dplyr)
+library(tidyr)
 
 getrxp <- function(string, pattern) {
   m <- regexpr(pattern, string)
   regmatches(string, m)
 }
 
+# Path to ED2 source file -- change as necessary for your code
 state_vars_file <- "~/Projects/edmodel/ed2-mpiao-pull/ED/src/memory/ed_state_vars.F90"
 state_vars_raw <- readLines(state_vars_file)
 state_vars_raw <- trimws(state_vars_raw)
@@ -57,18 +59,34 @@ meta_vals <- grep("call metadata_edio", sv2, value = TRUE)
 meta_args_raw <- meta_vals %>%
   str_remove("^call +") %>%
   str_split_fixed(fixed("("), 2) %>%
-  .[, 2]
+  .[, 2] %>%
+  str_remove("\\) *$")
 
-meta_args
+meta_args <- meta_args_raw %>%
+  str_split_fixed(fixed(","), 5)
 
-meta_rows <- grep("call metadata_", sv2)
-meta_vals <- sv2[meta_rows]
+vtable_first_four <- vtable_args[1:4, ]
+vtable_rest <- vtable_args[-c(1:4), ]
 
-var_rows <- vtable_rows + 2
-desc_rows <- var_rows + 1
-unit_rows <- desc_rows + 1
+ed2_variables <- cbind(vtable_rest, meta_args) %>%
+  as_tibble(.name_repair = "unique") %>%
+  mutate_all(trimws) %>%
+  mutate_all(function(x) str_remove(str_remove(x, "^'"), "'$")) %>%
+  # remove unnecessary columns
+  select(
+    code_variable = ...2,
+    glob_id = ...6,
+    info_string = ...10,
+    description = ...13,
+    unit = ...14,
+    grid = ...15
+  ) %>%
+  mutate(
+    variable = str_extract(info_string, "^[A-Z_]+")
+  ) %>%
+  select(
+    variable, description, unit, grid, code_variable,
+    glob_id, info_string, everything()
+  )
 
-var_vals_raw <- state_vars_raw[var_rows]
-var_vals <- getrxp(var_vals_raw, "[A-Z_]+")
-
-desc_vals_raw <- state_vars_raw[desc_rows]
+usethis::use_data(ed2_variables, internal = TRUE)
