@@ -33,8 +33,8 @@ follows:
 \item \code{ipatch} -- Number of patches. Typically 1, unless multiple patches
 have been specified.
 \item \code{icohort} -- Number of cohorts. Changes on a monthly timestep.
-\item \code{ndcycle} -- Number of steps in the diurnal cycle output. See
-\code{IQOUTPUT} documentation in the ED2IN file.
+\item \code{ndcycle} -- Number of steps in the diurnal cycle output. See output
+variable \code{NDCYCLE} as well as \code{IQOUTPUT} documentation in the ED2IN file.
 \item \code{n_pft} -- Number of plant functional types (PFTs). Should be
 hard-coded to 17. See the \code{INCLUDE_THESE_PFT} table in the ED2IN file for
 (defualt) PFT definitions.
@@ -42,7 +42,10 @@ hard-coded to 17. See the \code{INCLUDE_THESE_PFT} table in the ED2IN file for
 First value is for all plants with DBH <= 10cm, second value is 10 < DBH
 <= 20, third value is 20 < DBH <= 30, etc., and the last value is DBH >
 100cm.
-\item \code{nzg} -- Number of soil levels. Defined by the \code{NZG} variable in ED2IN.
+\item \code{nzg} -- Number of soil levels. Defined by the \code{NZG} variable in ED2IN
+(and in the output).
+\item \code{n_hgt_class} -- Number of height classes. If ED2IN flag IFUSION is 0
+(default) then 8; otherwise, 19.
 \item \code{iradprof} -- Radiation profile identifiers. Hard coded to 10, with
 values corresponding to the following (PAR is "photosynthetically active
 radiation", ~400-700nm wavelength; NIR is "near-infrared", ~700-2500nm
