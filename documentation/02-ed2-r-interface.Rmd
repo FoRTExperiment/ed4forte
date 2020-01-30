@@ -119,7 +119,7 @@ You should see the 12 monthly output files, along with a copy of the ED2IN file 
 ED2 outputs are in HDF5 format, of which NetCDF is a special case.
 Therefore, they can be read by NetCDF utilities, like the `ncdf4` package.
 
-```{r}
+```{r ncdf4-outputs}
 outfiles <- list.files(outdir, "analysis-E-", full.names = TRUE)
 nc <- ncdf4::nc_open(outfiles[1])
 ncdf4::ncvar_get(nc, "AGB_CO")
@@ -129,7 +129,7 @@ ncdf4::ncvar_get(nc, "MMEAN_GPP_PY")
 Unfortunately, ED2's produces only one file per timestep, which makes reading in results from long simulations  pain.
 `ed4forte` provides some utilities for reading a subset of ED2 file types and variables in bulk.
 
-```{r}
+```{r read-outputs, warning = FALSE}
 results <- read_monthly_dir(outdir)
 results
 
