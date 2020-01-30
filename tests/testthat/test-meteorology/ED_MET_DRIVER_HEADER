@@ -1,0 +1,8 @@
+'Test meteorology, derived from NARR + Mauna Loa CO2 record'
+1
+test-meteorology/
+1 1 1 1 -84.6975 45.5625
+13
+dlwrf hgt nbdsf nddsf prate pres sh tmp ugrd vbdsf vddsf vgrd co2
+10800 10800 10800 10800 10800 10800 10800 10800 10800 10800 10800 10800 390
+1 1 1 1 1 1 1 1 1 1 1 1 4
