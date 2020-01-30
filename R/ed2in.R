@@ -96,10 +96,12 @@ write_ed2in <- function(ed2in, con, ...) {
 ed2in <- function(...) {
   mods <- rlang::list2(...)
   filename <- system.file("ED2IN", package = "ed4forte")
-  modifyList(
-    read_ed2in(filename),
-    mods
-  )
+  common_input_dir <- system.file("ed-inputs-common", package = "ed4forte")
+  base_ed2in <- modifyList(read_ed2in(filename), list(
+    THSUMS_DATABASE = file.path(common_input_dir, "chd-dgd/"),
+    VEG_DATABASE = file.path(common_input_dir, "veg-oge", "OGE2_")
+  ))
+  modifyList(base_ed2in, mods)
 }
 
 #' Format ED2IN tag-value list

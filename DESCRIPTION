@@ -22,7 +22,8 @@ Imports:
     udunits2,
     tibble,
     sp,
-    rlang
+    rlang,
+    processx
 Suggests:
     furrr,
     progress,
