@@ -6,16 +6,37 @@
 \usage{
 run_ed2(
   outdir,
+  start_dt,
+  end_dt,
   ed2_exe = getOption("ed4forte.ed2_exe"),
   wd = NULL,
   env = NULL,
   stdout = file.path(outdir, "stdout.log"),
   stderr = file.path(outdir, "stderr.log"),
+  tz = "UTC",
   ...
 )
 }
 \arguments{
 \item{outdir}{Output directory}
+
+\item{start_dt, end_dt}{Start and end date-times of simulation. Can be given
+as POSIX(ct/lt), or character (in which case, they will be converted via
+\code{\link[base:as.POSIXct]{base::as.POSIXct()}}).}
+
+\item{wd}{Process working directory (default, \code{NULL}, means current working
+directory). See \link[processx:process]{processx::process}.}
+
+\item{env}{Process environment variables (default, \code{NULL}, means inherit
+current environment). See \link[processx:process]{processx::process}.}
+
+\item{tz}{time zone specification to be used for the conversion,
+    \emph{if one is required}.  System-specific (see \link[base]{time zones}),
+    but \code{""} is the current time zone, and \code{"GMT"} is UTC
+    (Universal Time, Coordinated).  Invalid values are most commonly
+    treated as UTC, on some platforms with a warning.}
+
+\item{...}{further arguments to be passed to or from other methods.}
 }
 \value{
 A \code{\link[processx:process]{processx::process()}} object corresponding to the running ED2

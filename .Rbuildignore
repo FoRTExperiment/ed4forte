@@ -2,3 +2,5 @@
 ^documentation/
 ^scratch/
 ^scripts/
+^unsynced-data/
+^data-raw/
