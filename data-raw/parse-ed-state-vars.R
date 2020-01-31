@@ -2,6 +2,9 @@ library(stringr)
 library(dplyr)
 library(tidyr)
 
+stopifnot(requireNamespace("here", quietly = TRUE))
+source(here::here("data-raw", "helpers.R"))
+
 # Path to ED2 source file
 # By default, pulls from GitHub -- master branch
 ed2_base_path <- "https://raw.githubusercontent.com/EDmodel/ED2/master/"
@@ -11,22 +14,7 @@ state_vars_raw <- trimws(state_vars_string) %>%
   grep("^!", ., invert = TRUE, value = TRUE) %>%
   .[. != ""]
 
-sv_raw <- gsub("!.*", "", state_vars_raw)
-
-sv2 <- character(length(sv_raw))
-i <- 1
-j <- 1
-while (i <= length(state_vars_raw)) {
-  s <- state_vars_raw[i]
-  while (grepl("&", s)) {
-    s <- gsub("&", "", s)
-    i <- i + 1
-    s <- paste0(s, state_vars_raw[i])
-  }
-  sv2[j] <- s
-  j <- j + 1
-  i <- i + 1
-}
+sv2 <- read_raw_fortran(state_vars_raw)
 
 vtable_get_args <- function(x) {
   x %>%
