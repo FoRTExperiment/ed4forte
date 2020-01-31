@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<config>
+ 
+ <pft>
+  <num>9</num>
+  <clumping_factor>0.90</clumping_factor>
+  <orient_factor>0.25</orient_factor>
+ </pft>
+ <pft>
+  <num>10</num>
+  <clumping_factor>0.65</clumping_factor>
+  <orient_factor>0.30</orient_factor>
+ </pft>
+ <pft>
+  <num>11</num>
+  <clumping_factor>0.50</clumping_factor>
+  <orient_factor>0.35</orient_factor>
+ </pft>
+</config>

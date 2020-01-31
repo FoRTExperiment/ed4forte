@@ -23,7 +23,9 @@ Imports:
     tibble,
     sp,
     rlang,
-    processx
+    processx,
+    xml2,
+    readr
 Suggests:
     furrr,
     progress,
