@@ -71,7 +71,14 @@
 #' @author Alexey Shiklomanov
 #' @export
 ed2_variable_info <- function(variables = NULL) {
-  result <- ed2_variables
+  result <- readr::read_csv(
+    system.file("ed2-state-variables.csv", package = "ed4forte"),
+    cols = readr::cols(variable = "c", description = "c", unit = "c",
+                       dimensions = "c", code_variable = "c",
+                       in_history = "l", in_analysis = "l", in_daily = "l",
+                       in_monthly = "l", in_diurnal = "l", in_yearly = "l",
+                       in_tower = "l", glob_id = "c", info_string = "c")
+  )
   if (!is.null(variables)) {
     result <- dplyr::filter(result, variable %in% variables)
     missing_vars <- setdiff(variables, result$variable)

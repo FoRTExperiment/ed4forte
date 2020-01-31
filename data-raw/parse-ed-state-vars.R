@@ -150,4 +150,4 @@ ed2_variables <- bind_cols(vtable_args, meta_args) %>%
     )
   )
 
-usethis::use_data(ed2_variables, internal = TRUE, overwrite = TRUE)
+readr::write_csv(ed2_variables, here::here("inst", "ed2-state-variables.csv"))
