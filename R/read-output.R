@@ -15,7 +15,7 @@ read_monthly_file <- function(fname, .pb = NULL) {
     dplyr::filter(in_monthly)
 
   cohort_vars <- all_vars %>%
-    dplyr::filter(dimensions == "icohort") %>%
+    dplyr::filter(dimensions == "ncohorts") %>%
     dplyr::pull(variable)
 
   if (cohort_vars[1] %in% names(hf$var)) {
@@ -44,11 +44,7 @@ read_monthly_file <- function(fname, .pb = NULL) {
   }
 
   scalar_vars <- all_vars %>%
-    dplyr::filter(
-      dimensions %in% c(NA, "isite", "ipoly"),
-      # These are not actually scalar, just unknown dims, so we exclude them
-      !variable %in% c("NTEXT_SOIL", "DISTURBANCE_RATES", "REPRO_PA")
-    ) %>%
+    dplyr::filter(dimensions %in% c("npolygons", "nsites", "npatches")) %>%
     dplyr::pull(variable)
 
   scalar_data <- purrr::map(scalar_vars, ncget, nc = hf) %>%
@@ -57,7 +53,7 @@ read_monthly_file <- function(fname, .pb = NULL) {
   scalar_out <- tibble::tibble(datetime = dt, !!!scalar_data)
 
   soil_vars <- all_vars %>%
-    dplyr::filter(dimensions %in% c("nzg", "nzg,ipatch", "nzg,ipoly")) %>%
+    dplyr::filter(dimensions %in% c("nzg", "nzg,npatches", "nzg,npolygons")) %>%
     dplyr::pull(variable)
 
   soil_data <- purrr::map(soil_vars, ncget, nc = hf) %>%
@@ -66,7 +62,7 @@ read_monthly_file <- function(fname, .pb = NULL) {
   soil_out <- tibble::tibble(datetime = dt, !!!soil_data)
 
   py_vars <- all_vars %>%
-    dplyr::filter(dimensions == "n_pft,n_dbh,ipoly") %>%
+    dplyr::filter(dimensions == "n_pft,n_dbh,npolygons") %>%
     dplyr::pull(variable)
 
   py_data <- purrr::map(py_vars, ncget, nc = hf) %>%

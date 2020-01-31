@@ -9,6 +9,7 @@ test_that("Running ED2 works", {
 
   p <- run_ed2(
     outdir, start_date, end_date,
+    wd = here::here("tests", "testthat"),
     ED_MET_DRIVER_DB = file.path("test-meteorology", "ED_MET_DRIVER_HEADER"),
   )
   p$wait()
@@ -35,3 +36,23 @@ test_that("Reading ED2 monthly output works", {
   )
   expect_true(file.exists(file.path(outdir, "monthly-output.rds")))
 })
+
+if (FALSE) {
+  scc <- results[["df_scalar"]][[1]]
+
+  scc %>%
+    dplyr::summarize_all(dplyr::n_distinct) %>%
+    tidyr::pivot_longer(cols = dplyr::everything()) %>%
+    dplyr::filter(value > 1) %>%
+    print(n = Inf)
+
+}
+
+#   name    value
+#   <chr>   <int>
+# 1 PFT         5
+# 2 KRDEPTH     2
+# 3 NPLANT      4
+# 4 HITE        5
+# 5 CBR_BAR     5
+# 6 PAW_AVG     3

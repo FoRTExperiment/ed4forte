@@ -29,12 +29,11 @@ one row (first dimension) per PFT, one column (second dimension) per DBH
 class, and polygons in the third dimension. Dimension value codes are as
 follows:
 \itemize{
-\item \code{ipoly} -- Number of polygons. For site-level runs, should be 1.
-\item \code{ipatch} -- Number of patches. Typically 1, unless multiple patches
-have been specified.
-\item \code{icohort} -- Number of cohorts. Changes on a monthly timestep.
+\item \code{npolygons} -- Number of polygons. For site-level runs, should be 1.
 \item \code{ndcycle} -- Number of steps in the diurnal cycle output. See output
 variable \code{NDCYCLE} as well as \code{IQOUTPUT} documentation in the ED2IN file.
+\item \code{nzg} -- Number of soil levels. Defined by the \code{NZG} variable in ED2IN
+(and in the output).
 \item \code{n_pft} -- Number of plant functional types (PFTs). Should be
 hard-coded to 17. See the \code{INCLUDE_THESE_PFT} table in the ED2IN file for
 (defualt) PFT definitions.
@@ -42,11 +41,34 @@ hard-coded to 17. See the \code{INCLUDE_THESE_PFT} table in the ED2IN file for
 First value is for all plants with DBH <= 10cm, second value is 10 < DBH
 <= 20, third value is 20 < DBH <= 30, etc., and the last value is DBH >
 100cm.
-\item \code{nzg} -- Number of soil levels. Defined by the \code{NZG} variable in ED2IN
-(and in the output).
-\item \code{n_hgt_class} -- Number of height classes. If ED2IN flag IFUSION is 0
+\item \code{nsites} -- Number of sites. For site-level runs, should be 1.
+\item \code{n_dist_types} -- Number of anthropogenic disturbance classes. There
+are 8, as follows:
+\itemize{
+\item 1: Pasture
+\item 2: Forest plantation
+\item 3: Tree fall
+\item 4: Fire
+\item 5: Forest regrowth
+\item 6: Logged forest (felling)
+\item 7: Logged forest (skid trail + road)
+\item 8: Cropland
+}
+\item \code{npatches} -- Number of patches. Typically 1, unless multiple patches
+have been specified.
+\item \code{nzs} -- Number of snow or water layers.
+\item \code{ff_nhgt} -- Number of height classes. If ED2IN flag IFUSION is 0
 (default) then 8; otherwise, 19.
-\item \code{iradprof} -- Radiation profile identifiers. Hard coded to 10, with
+\item \code{ncohorts} -- Number of cohorts. Changes on a monthly timestep.
+\item \verb{n mort} -- Number of mortality classes. Hard coded to 5, as follows:
+\itemize{
+\item 1: Aging (PFT-dependent parameter)
+\item 2: Negative carbon balance
+\item 3: Treefall mortality
+\item 4: Cold weather mortality
+\item 5: Disturbance mortality.
+}
+\item \code{n_radprof} -- Radiation profile identifiers. Hard coded to 10, with
 values corresponding to the following (PAR is "photosynthetically active
 radiation", ~400-700nm wavelength; NIR is "near-infrared", ~700-2500nm
 wavelength. "Beam" is direct radiation. Thermal radiation is diffuse by
@@ -64,7 +86,6 @@ definition):
 \item 10: Thermal, Up
 }
 \item A number (e.g. \code{5}) -- The hard-coded literal dimension size.
-\item \code{NA} (no dimension) indicates a scalar quantity (length = 1)
 }
 \item \code{code_variable} -- The variable name used in the ED2 source code
 \item \verb{in_<*>} -- Whether or not the variable is included in the corresponding

@@ -14,12 +14,11 @@
 #' one row (first dimension) per PFT, one column (second dimension) per DBH
 #' class, and polygons in the third dimension. Dimension value codes are as
 #' follows:
-#'     - `ipoly` -- Number of polygons. For site-level runs, should be 1.
-#'     - `ipatch` -- Number of patches. Typically 1, unless multiple patches
-#'     have been specified.
-#'     - `icohort` -- Number of cohorts. Changes on a monthly timestep.
+#'     - `npolygons` -- Number of polygons. For site-level runs, should be 1.
 #'     - `ndcycle` -- Number of steps in the diurnal cycle output. See output
 #'     variable `NDCYCLE` as well as `IQOUTPUT` documentation in the ED2IN file.
+#'     - `nzg` -- Number of soil levels. Defined by the `NZG` variable in ED2IN
+#'     (and in the output).
 #'     - `n_pft` -- Number of plant functional types (PFTs). Should be
 #'     hard-coded to 17. See the `INCLUDE_THESE_PFT` table in the ED2IN file for
 #'     (defualt) PFT definitions.
@@ -27,11 +26,30 @@
 #'     First value is for all plants with DBH <= 10cm, second value is 10 < DBH
 #'     <= 20, third value is 20 < DBH <= 30, etc., and the last value is DBH >
 #'     100cm.
-#'     - `nzg` -- Number of soil levels. Defined by the `NZG` variable in ED2IN
-#'     (and in the output).
-#'     - `n_hgt_class` -- Number of height classes. If ED2IN flag IFUSION is 0
+#'     - `nsites` -- Number of sites. For site-level runs, should be 1.
+#'     - `n_dist_types` -- Number of anthropogenic disturbance classes. There
+#'     are 8, as follows:
+#'         - 1: Pasture
+#'         - 2: Forest plantation
+#'         - 3: Tree fall
+#'         - 4: Fire
+#'         - 5: Forest regrowth
+#'         - 6: Logged forest (felling)
+#'         - 7: Logged forest (skid trail + road)
+#'         - 8: Cropland
+#'     - `npatches` -- Number of patches. Typically 1, unless multiple patches
+#'     have been specified.
+#'     - `nzs` -- Number of snow or water layers.
+#'     - `ff_nhgt` -- Number of height classes. If ED2IN flag IFUSION is 0
 #'     (default) then 8; otherwise, 19.
-#'     - `iradprof` -- Radiation profile identifiers. Hard coded to 10, with
+#'     - `ncohorts` -- Number of cohorts. Changes on a monthly timestep.
+#'     - `n mort` -- Number of mortality classes. Hard coded to 5, as follows:
+#'         - 1: Aging (PFT-dependent parameter)
+#'         - 2: Negative carbon balance
+#'         - 3: Treefall mortality
+#'         - 4: Cold weather mortality
+#'         - 5: Disturbance mortality.
+#'     - `n_radprof` -- Radiation profile identifiers. Hard coded to 10, with
 #'     values corresponding to the following (PAR is "photosynthetically active
 #'     radiation", ~400-700nm wavelength; NIR is "near-infrared", ~700-2500nm
 #'     wavelength. "Beam" is direct radiation. Thermal radiation is diffuse by
@@ -47,7 +65,6 @@
 #'         - 9: Thermal, Down
 #'         - 10: Thermal, Up
 #'     - A number (e.g. `5`) -- The hard-coded literal dimension size.
-#'     - `NA` (no dimension) indicates a scalar quantity (length = 1)
 #' - `code_variable` -- The variable name used in the ED2 source code
 #' - `in_<*>` -- Whether or not the variable is included in the corresponding
 #' output file (unless noted otherwise, the file letter code corresponds to the
@@ -73,11 +90,13 @@
 ed2_variable_info <- function(variables = NULL) {
   result <- readr::read_csv(
     system.file("ed2-state-variables.csv", package = "ed4forte"),
-    cols = readr::cols(variable = "c", description = "c", unit = "c",
-                       dimensions = "c", code_variable = "c",
-                       in_history = "l", in_analysis = "l", in_daily = "l",
-                       in_monthly = "l", in_diurnal = "l", in_yearly = "l",
-                       in_tower = "l", glob_id = "c", info_string = "c")
+    col_types = readr::cols(
+      variable = "c", description = "c", unit = "c",
+      dimensions = "c", code_variable = "c",
+      in_history = "l", in_analysis = "l", in_daily = "l", in_monthly = "l",
+      in_diurnal = "l", in_yearly = "l", in_tower = "l",
+      glob_id = "c", info_string = "c"
+    )
   )
   if (!is.null(variables)) {
     result <- dplyr::filter(result, variable %in% variables)

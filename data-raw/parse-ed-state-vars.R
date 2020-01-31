@@ -3,13 +3,13 @@ library(dplyr)
 library(tidyr)
 
 # Path to ED2 source file
-# By default, pulls from GitHub -- mpaiao_pr branch
-ed2_base_path <- "https://raw.githubusercontent.com/EDmodel/ED2/mpaiao_pr/"
+# By default, pulls from GitHub -- master branch
+ed2_base_path <- "https://raw.githubusercontent.com/EDmodel/ED2/master/"
 state_vars_file <- file.path(ed2_base_path, "ED", "src", "memory", "ed_state_vars.F90")
-state_vars_raw <- readLines(state_vars_file)
-state_vars_raw <- trimws(state_vars_raw)
-state_vars_raw <- grep("^!", state_vars_raw, invert = TRUE, value = TRUE)
-state_vars_raw <- state_vars_raw[state_vars_raw != ""]
+state_vars_string <- readLines(state_vars_file)
+state_vars_raw <- trimws(state_vars_string) %>%
+  grep("^!", ., invert = TRUE, value = TRUE) %>%
+  .[. != ""]
 
 sv_raw <- gsub("!.*", "", state_vars_raw)
 
@@ -27,7 +27,6 @@ while (i <= length(state_vars_raw)) {
   j <- j + 1
   i <- i + 1
 }
-sv2 <- sv2[seq(1, j - 1)]
 
 vtable_get_args <- function(x) {
   x %>%
@@ -54,7 +53,7 @@ vtable_parse <- vtable_vals %>%
 vtable_call <- vtable_parse[, 1]
 vtable_args <- vtable_get_args(vtable_parse[, 2]) %>%
   filter(!grepl("SLZ|HGT_CLASS", V10)) %>%
-  select(code_variable = V1, info_string = V10, glob_id = V6)
+  select(code_variable = V2, info_string = V10, glob_id = V6)
 
 meta_vals <- grep("call metadata_edio", sv2, value = TRUE)
 
@@ -79,7 +78,7 @@ special_cases <- tibble(
     "Height bin for patch profiling"
   ),
   unit = c("m", "m"),
-  dimensions = c("nzg", "h_hgt_class"),
+  dimensions = c("nzg", "ff_nhgt"),
   code_variable = c("slz", "hgt_class"),
   in_history = TRUE,
   in_analysis = TRUE,
@@ -90,14 +89,26 @@ special_cases <- tibble(
   in_tower = FALSE
 )
 
+# Read dimensions from `allocate` blocks
+dimension_info <- grep("allocate\\(", sv2, value = TRUE) %>%
+  str_remove("allocate") %>%
+  str_remove("^\\(") %>%
+  str_remove("\\)$") %>%
+  str_remove_all(" +") %>%
+  str_match("(.*?)\\((.*)\\)$") %>%
+  `colnames<-`(c("dimension_string", "code_variable", "dimensions")) %>%
+  as_tibble() %>%
+  mutate(code_variable = tolower(code_variable)) %>%
+  distinct()
+
 ed2_variables <- bind_cols(vtable_args, meta_args) %>%
   bind_rows(vtable_sca_args) %>%
   # Remove surrounding parentheses
   mutate_all(function(x) str_remove(str_remove(x, "^'"), "'$")) %>%
   # Exclude columns that contain no information
-  select(code_variable, glob_id, info_string, description, unit, dimensions) %>%
+  select(code_variable, glob_id, info_string, description, unit) %>%
   mutate(
-    variable = str_extract(info_string, "^[A-Z_]+"),
+    variable = str_extract(info_string, "^[A-Z1-9_]+"),
     in_history = grepl("hist", info_string),
     in_analysis = grepl("anal|fast_keys", info_string),
     in_daily = grepl("dail(_keys)?", info_string),
@@ -115,10 +126,9 @@ ed2_variables <- bind_cols(vtable_args, meta_args) %>%
       na_if("--") %>%
       na_if("---") %>%
       na_if("----"),
-    # Consistently format dimensions
-    dimensions = str_remove(dimensions, "^\\(") %>%
-      str_remove("\\)$")
+    code_variable = tolower(code_variable)
   ) %>%
+  inner_join(dimension_info, "code_variable") %>%
   bind_rows(special_cases) %>%
   select(
     variable, description, unit, dimensions, code_variable,
@@ -147,17 +157,13 @@ ed2_variables <- bind_cols(vtable_args, meta_args) %>%
       variable == "RUNOFF" ~ "kg/m2/s",
       variable == "QRUNOFF" ~ "kg/m2/s",
       TRUE ~ unit
-    ),
-    dimensions = case_when(
-      variable == "PFT" ~ "icohort",
-      variable == "KRDEPTH" ~ "icohort",
-      variable == "NPLANT" ~ "icohort",
-      variable == "CBR_BAR" ~ "icohort",
-      variable == "PAW_AVG" ~ "icohort",
-      variable == "MMEAN_MORT_RATE_CO" ~ "imort,icohort",
-      variable == "MORT_RATE_CO" ~ "imort,icohort",
-      TRUE ~ dimensions
     )
   )
+
+n_dup <- ed2_variables %>%
+  count(variable) %>%
+  filter(n > 1) %>%
+  nrow()
+stopifnot(n_dup == 0)
 
 readr::write_csv(ed2_variables, here::here("inst", "ed2-state-variables.csv"))
