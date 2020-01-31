@@ -55,7 +55,8 @@ the year 2000 starting from bare ground:
 library(ed4forte)
 
 outdir <- "test-ed-outputs"
-ed_input_dir <- "ed-input-data"
+ed_input_dir <- "ed-input-data" 
+assertthat::assert_that(dir.exists("ed-input-data"))
 
 p <- run_ed2(
   outdir,
