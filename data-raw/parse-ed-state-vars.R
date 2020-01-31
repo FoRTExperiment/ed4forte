@@ -2,11 +2,6 @@ library(stringr)
 library(dplyr)
 library(tidyr)
 
-getrxp <- function(string, pattern) {
-  m <- regexpr(pattern, string)
-  regmatches(string, m)
-}
-
 # Path to ED2 source file
 # By default, pulls from GitHub -- mpaiao_pr branch
 ed2_base_path <- "https://raw.githubusercontent.com/EDmodel/ED2/mpaiao_pr/"
