@@ -105,9 +105,14 @@ output directory.
 list.files(outdir)
 ```
 
-    ##  [1] "analysis-E-2000-01-00-000000-g01.h5" "analysis-E-2000-02-00-000000-g01.h5" "analysis-E-2000-03-00-000000-g01.h5" "analysis-E-2000-04-00-000000-g01.h5" "analysis-E-2000-05-00-000000-g01.h5" "analysis-E-2000-06-00-000000-g01.h5"
-    ##  [7] "analysis-E-2000-07-00-000000-g01.h5" "analysis-E-2000-08-00-000000-g01.h5" "analysis-E-2000-09-00-000000-g01.h5" "analysis-E-2000-10-00-000000-g01.h5" "analysis-E-2000-11-00-000000-g01.h5" "analysis-E-2000-12-00-000000-g01.h5"
-    ## [13] "ED2IN"                               "monthly-output.rds"                  "stderr.log"                          "stdout.log"
+    ##  [1] "analysis-E-2000-01-00-000000-g01.h5" "analysis-E-2000-02-00-000000-g01.h5"
+    ##  [3] "analysis-E-2000-03-00-000000-g01.h5" "analysis-E-2000-04-00-000000-g01.h5"
+    ##  [5] "analysis-E-2000-05-00-000000-g01.h5" "analysis-E-2000-06-00-000000-g01.h5"
+    ##  [7] "analysis-E-2000-07-00-000000-g01.h5" "analysis-E-2000-08-00-000000-g01.h5"
+    ##  [9] "analysis-E-2000-09-00-000000-g01.h5" "analysis-E-2000-10-00-000000-g01.h5"
+    ## [11] "analysis-E-2000-11-00-000000-g01.h5" "analysis-E-2000-12-00-000000-g01.h5"
+    ## [13] "ED2IN"                               "stderr.log"                         
+    ## [15] "stdout.log"
 
 You should see the 12 monthly output files, along with a copy of the
 ED2IN file used for the run and two log files corresponding to the input
@@ -125,7 +130,7 @@ nc <- ncdf4::nc_open(outfiles[1])
 ncdf4::ncvar_get(nc, "AGB_CO")
 ```
 
-    ## [1] 0.0001657098
+    ## [1] 0.0002973947 0.0002414269 0.0001701059 0.0001030530 0.0001030530
 
 ``` r
 ncdf4::ncvar_get(nc, "MMEAN_GPP_PY")
@@ -141,49 +146,80 @@ utilities for reading a subset of ED2 file types and variables in bulk.
 results <- read_monthly_dir(outdir)
 ```
 
-    ## Loading cached output
+    ## Reading all HDF5 files
 
 ``` r
 results
 ```
 
     ## # A tibble: 1 x 6
-    ##   basename        df_scalar           df_cohort           df_soil            df_pft              outdir         
-    ##   <chr>           <list>              <list>              <list>             <list>              <chr>          
-    ## 1 test-ed-outputs <tibble [12 × 252]> <tibble [60 × 138]> <tibble [84 × 26]> <tibble [204 × 38]> test-ed-outputs
+    ##   basename     df_scalar      df_cohort     df_soil      df_pft       outdir    
+    ##   <chr>        <list>         <list>        <list>       <list>       <chr>     
+    ## 1 test-ed-out… <tibble [12 ×… <tibble [65 … <tibble [84… <tibble [20… test-ed-o…
 
 ``` r
 scalar_results <- tidyr::unnest(results, df_scalar)
 scalar_results
 ```
 
-    ## # A tibble: 12 x 257
-    ##    basename datetime            PYSI_ID PYSI_N  XATM  YATM LONGITUDE LATITUDE CROP_HARVEST_PY LOGGING_HARVEST… COMBUSTED_FUEL_… MMEAN_GPP_PY MMEAN_NPP_PY MMEAN_LEAF_RESP… MMEAN_ROOT_RESP… MMEAN_LEAF_GROW… MMEAN_ROOT_GROW… MMEAN_SAPA_GROW…
-    ##    <chr>    <dttm>                <int>  <int> <int> <int>     <dbl>    <dbl>           <dbl>            <dbl>            <dbl>        <dbl>        <dbl>            <dbl>            <dbl>            <dbl>            <dbl>            <dbl>
-    ##  1 test-ed… 2000-01-01 00:00:00       1      1     1     1     -84.7     45.6               0                0                0  0               -5.02e-5    0.00000000217  0.0000000000109     0                0                    0.      
-    ##  2 test-ed… 2000-02-01 00:00:00       1      1     1     1     -84.7     45.6               0                0                0  0.000000411     -1.16e-6    0.0000000743   0.000000000516      0.0000000649     0.0000000649         2.64e-13
-    ##  3 test-ed… 2000-03-01 00:00:00       1      1     1     1     -84.7     45.6               0                0                0  0.0000883        5.93e-5    0.00000400     0.0000000233        0.0000125        0.0000125            5.11e-11
-    ##  4 test-ed… 2000-04-01 00:00:00       1      1     1     1     -84.7     45.6               0                0                0  0.000256         1.65e-4    0.0000162      0.000000207         0.0000375        0.0000375            1.57e-10
-    ##  5 test-ed… 2000-05-01 00:00:00       1      1     1     1     -84.7     45.6               0                0                0  0.000595         3.64e-4    0.0000452      0.00000134          0.0000923        0.0000923            4.16e-10
-    ##  6 test-ed… 2000-06-01 00:00:00       1      1     1     1     -84.7     45.6               0                0                0  0.00102          6.25e-4    0.0000941      0.00000297          0.000148         0.000148             7.41e-10
-    ##  7 test-ed… 2000-07-01 00:00:00       1      1     1     1     -84.7     45.6               0                0                0  0.00165          9.07e-4    0.000278       0.0000104           0.000226         0.000226             1.29e- 9
-    ##  8 test-ed… 2000-08-01 00:00:00       1      1     1     1     -84.7     45.6               0                0                0  0.00226          1.32e-3    0.000288       0.0000154           0.000321         0.000321             2.07e- 9
-    ##  9 test-ed… 2000-09-01 00:00:00       1      1     1     1     -84.7     45.6               0                0                0  0.00207          1.28e-3    0.000142       0.00000998          0.000320         0.000320             2.30e- 9
-    ## 10 test-ed… 2000-10-01 00:00:00       1      1     1     1     -84.7     45.6               0                0                0  0.00112          7.08e-4    0.0000477      0.00000420          0.000182         0.000182             1.39e- 9
-    ## 11 test-ed… 2000-11-01 00:00:00       1      1     1     1     -84.7     45.6               0                0                0  0.0000353        8.14e-6    0.00000143     0.000000708         0.0000125        0.0000125            9.74e-11
-    ## 12 test-ed… 2000-12-01 00:00:00       1      1     1     1     -84.7     45.6               0                0                0  0.000000141      2.70e-8    0.00000000371  0.0000000663        0.0000000219     0.0000000219         1.71e-13
-    ## # … with 239 more variables: MMEAN_SAPB_GROWTH_RESP_PY <dbl>, MMEAN_BARKA_GROWTH_RESP_PY <dbl>, MMEAN_BARKB_GROWTH_RESP_PY <dbl>, MMEAN_LEAF_STORAGE_RESP_PY <dbl>, MMEAN_ROOT_STORAGE_RESP_PY <dbl>, MMEAN_SAPA_STORAGE_RESP_PY <dbl>,
-    ## #   MMEAN_SAPB_STORAGE_RESP_PY <dbl>, MMEAN_BARKA_STORAGE_RESP_PY <dbl>, MMEAN_BARKB_STORAGE_RESP_PY <dbl>, MMEAN_PLRESP_PY <dbl>, MMEAN_LEAF_ENERGY_PY <dbl>, MMEAN_LEAF_WATER_PY <dbl>, MMEAN_LEAF_HCAP_PY <dbl>, MMEAN_LEAF_VPDEF_PY <dbl>,
-    ## #   MMEAN_LEAF_TEMP_PY <dbl>, MMEAN_LEAF_FLIQ_PY <dbl>, MMEAN_LEAF_GSW_PY <dbl>, MMEAN_LEAF_GBW_PY <dbl>, MMEAN_WOOD_ENERGY_PY <dbl>, MMEAN_WOOD_WATER_PY <dbl>, MMEAN_WOOD_HCAP_PY <dbl>, MMEAN_WOOD_TEMP_PY <dbl>, MMEAN_WOOD_FLIQ_PY <dbl>,
-    ## #   MMEAN_WOOD_GBW_PY <dbl>, MMEAN_FS_OPEN_PY <dbl>, MMEAN_FSW_PY <dbl>, MMEAN_FSN_PY <dbl>, MMEAN_A_OPEN_PY <dbl>, MMEAN_A_CLOSED_PY <dbl>, MMEAN_A_NET_PY <dbl>, MMEAN_A_LIGHT_PY <dbl>, MMEAN_A_RUBP_PY <dbl>, MMEAN_PSI_OPEN_PY <dbl>,
-    ## #   MMEAN_PSI_CLOSED_PY <dbl>, MMEAN_WATER_SUPPLY_PY <dbl>, MMEAN_PAR_L_PY <dbl>, MMEAN_PAR_L_BEAM_PY <dbl>, MMEAN_PAR_L_DIFF_PY <dbl>, MMEAN_RSHORT_L_PY <dbl>, MMEAN_RLONG_L_PY <dbl>, MMEAN_SENSIBLE_LC_PY <dbl>, MMEAN_VAPOR_LC_PY <dbl>,
-    ## #   MMEAN_TRANSP_PY <dbl>, MMEAN_WFLUX_WL_PY <dbl>, MMEAN_WFLUX_GW_PY <dbl>, MMEAN_INTERCEPTED_AL_PY <dbl>, MMEAN_WSHED_LG_PY <dbl>, MMEAN_RSHORT_W_PY <dbl>, MMEAN_RLONG_W_PY <dbl>, MMEAN_SENSIBLE_WC_PY <dbl>, MMEAN_VAPOR_WC_PY <dbl>,
-    ## #   MMEAN_INTERCEPTED_AW_PY <dbl>, MMEAN_WSHED_WG_PY <dbl>, MMEAN_RH_PY <dbl>, MMEAN_FGC_RH_PY <dbl>, MMEAN_FSC_RH_PY <dbl>, MMEAN_STGC_RH_PY <dbl>, MMEAN_STSC_RH_PY <dbl>, MMEAN_MSC_RH_PY <dbl>, MMEAN_SSC_RH_PY <dbl>,
-    ## #   MMEAN_PSC_RH_PY <dbl>, MMEAN_NEP_PY <dbl>, MMEAN_AVAILABLE_WATER_PY <dbl>, MMEAN_VEG_DISPLACE_PY <dbl>, MMEAN_ROUGH_PY <dbl>, MMEAN_CAN_THEIV_PY <dbl>, MMEAN_CAN_THETA_PY <dbl>, MMEAN_CAN_VPDEF_PY <dbl>, MMEAN_CAN_TEMP_PY <dbl>,
-    ## #   MMEAN_CAN_SHV_PY <dbl>, MMEAN_CAN_RHOS_PY <dbl>, MMEAN_CAN_DMOL_PY <dbl>, MMEAN_CAN_PRSS_PY <dbl>, MMEAN_GND_TEMP_PY <dbl>, MMEAN_GND_SHV_PY <dbl>, MMEAN_CAN_GGND_PY <dbl>, MMEAN_SFCW_DEPTH_PY <dbl>, MMEAN_SFCW_ENERGY_PY <dbl>,
-    ## #   MMEAN_SFCW_MASS_PY <dbl>, MMEAN_SFCW_TEMP_PY <dbl>, MMEAN_SFCW_FLIQ_PY <dbl>, MMEAN_RSHORT_GND_PY <dbl>, MMEAN_PAR_GND_PY <dbl>, MMEAN_RLONG_GND_PY <dbl>, MMEAN_RLONGUP_PY <dbl>, MMEAN_PARUP_PY <dbl>, MMEAN_NIRUP_PY <dbl>,
-    ## #   MMEAN_RSHORTUP_PY <dbl>, MMEAN_RNET_PY <dbl>, MMEAN_ALBEDO_PY <dbl>, MMEAN_ALBEDO_PAR_PY <dbl>, MMEAN_ALBEDO_NIR_PY <dbl>, MMEAN_RLONG_ALBEDO_PY <dbl>, MMEAN_USTAR_PY <dbl>, MMEAN_TSTAR_PY <dbl>, MMEAN_QSTAR_PY <dbl>,
-    ## #   MMEAN_CSTAR_PY <dbl>, MMEAN_CARBON_AC_PY <dbl>, MMEAN_CARBON_ST_PY <dbl>, MMEAN_VAPOR_GC_PY <dbl>, …
+    ## # A tibble: 12 x 353
+    ##    basename datetime            PYSI_ID PYSI_N  XATM  YATM LONGITUDE LATITUDE
+    ##    <chr>    <dttm>                <int>  <int> <int> <int>     <dbl>    <dbl>
+    ##  1 test-ed… 2000-01-01 00:00:00       1      1     1     1     -84.7     45.6
+    ##  2 test-ed… 2000-02-01 00:00:00       1      1     1     1     -84.7     45.6
+    ##  3 test-ed… 2000-03-01 00:00:00       1      1     1     1     -84.7     45.6
+    ##  4 test-ed… 2000-04-01 00:00:00       1      1     1     1     -84.7     45.6
+    ##  5 test-ed… 2000-05-01 00:00:00       1      1     1     1     -84.7     45.6
+    ##  6 test-ed… 2000-06-01 00:00:00       1      1     1     1     -84.7     45.6
+    ##  7 test-ed… 2000-07-01 00:00:00       1      1     1     1     -84.7     45.6
+    ##  8 test-ed… 2000-08-01 00:00:00       1      1     1     1     -84.7     45.6
+    ##  9 test-ed… 2000-09-01 00:00:00       1      1     1     1     -84.7     45.6
+    ## 10 test-ed… 2000-10-01 00:00:00       1      1     1     1     -84.7     45.6
+    ## 11 test-ed… 2000-11-01 00:00:00       1      1     1     1     -84.7     45.6
+    ## 12 test-ed… 2000-12-01 00:00:00       1      1     1     1     -84.7     45.6
+    ## # … with 345 more variables: CROP_HARVEST_PY <dbl>, LOGGING_HARVEST_PY <dbl>,
+    ## #   COMBUSTED_FUEL_PY <dbl>, MMEAN_GPP_PY <dbl>, MMEAN_NPP_PY <dbl>,
+    ## #   MMEAN_LEAF_RESP_PY <dbl>, MMEAN_ROOT_RESP_PY <dbl>,
+    ## #   MMEAN_LEAF_GROWTH_RESP_PY <dbl>, MMEAN_ROOT_GROWTH_RESP_PY <dbl>,
+    ## #   MMEAN_SAPA_GROWTH_RESP_PY <dbl>, MMEAN_SAPB_GROWTH_RESP_PY <dbl>,
+    ## #   MMEAN_BARKA_GROWTH_RESP_PY <dbl>, MMEAN_BARKB_GROWTH_RESP_PY <dbl>,
+    ## #   MMEAN_LEAF_STORAGE_RESP_PY <dbl>, MMEAN_ROOT_STORAGE_RESP_PY <dbl>,
+    ## #   MMEAN_SAPA_STORAGE_RESP_PY <dbl>, MMEAN_SAPB_STORAGE_RESP_PY <dbl>,
+    ## #   MMEAN_BARKA_STORAGE_RESP_PY <dbl>, MMEAN_BARKB_STORAGE_RESP_PY <dbl>,
+    ## #   MMEAN_PLRESP_PY <dbl>, MMEAN_LEAF_ENERGY_PY <dbl>,
+    ## #   MMEAN_LEAF_WATER_PY <dbl>, MMEAN_LEAF_WATER_IM2_PY <dbl>,
+    ## #   MMEAN_LEAF_HCAP_PY <dbl>, MMEAN_LEAF_VPDEF_PY <dbl>,
+    ## #   MMEAN_LEAF_TEMP_PY <dbl>, MMEAN_LEAF_FLIQ_PY <dbl>,
+    ## #   MMEAN_LEAF_GSW_PY <dbl>, MMEAN_LEAF_GBW_PY <dbl>,
+    ## #   MMEAN_WOOD_ENERGY_PY <dbl>, MMEAN_WOOD_WATER_PY <dbl>,
+    ## #   MMEAN_WOOD_WATER_IM2_PY <dbl>, MMEAN_WOOD_HCAP_PY <dbl>,
+    ## #   MMEAN_WOOD_TEMP_PY <dbl>, MMEAN_WOOD_FLIQ_PY <dbl>,
+    ## #   MMEAN_WOOD_GBW_PY <dbl>, MMEAN_FS_OPEN_PY <dbl>, MMEAN_FSW_PY <dbl>,
+    ## #   MMEAN_FSN_PY <dbl>, MMEAN_A_OPEN_PY <dbl>, MMEAN_A_CLOSED_PY <dbl>,
+    ## #   MMEAN_A_NET_PY <dbl>, MMEAN_A_LIGHT_PY <dbl>, MMEAN_A_RUBP_PY <dbl>,
+    ## #   MMEAN_A_CO2_PY <dbl>, MMEAN_PSI_OPEN_PY <dbl>, MMEAN_PSI_CLOSED_PY <dbl>,
+    ## #   MMEAN_WATER_SUPPLY_PY <dbl>, MMEAN_PAR_L_PY <dbl>,
+    ## #   MMEAN_PAR_L_BEAM_PY <dbl>, MMEAN_PAR_L_DIFF_PY <dbl>,
+    ## #   MMEAN_RSHORT_L_PY <dbl>, MMEAN_RLONG_L_PY <dbl>,
+    ## #   MMEAN_SENSIBLE_LC_PY <dbl>, MMEAN_VAPOR_LC_PY <dbl>, MMEAN_TRANSP_PY <dbl>,
+    ## #   MMEAN_WFLUX_WL_PY <dbl>, MMEAN_WFLUX_GW_PY <dbl>,
+    ## #   MMEAN_INTERCEPTED_AL_PY <dbl>, MMEAN_WSHED_LG_PY <dbl>,
+    ## #   MMEAN_RSHORT_W_PY <dbl>, MMEAN_RLONG_W_PY <dbl>,
+    ## #   MMEAN_SENSIBLE_WC_PY <dbl>, MMEAN_VAPOR_WC_PY <dbl>,
+    ## #   MMEAN_INTERCEPTED_AW_PY <dbl>, MMEAN_WSHED_WG_PY <dbl>, MMEAN_RH_PY <dbl>,
+    ## #   MMEAN_FGC_RH_PY <dbl>, MMEAN_FSC_RH_PY <dbl>, MMEAN_STGC_RH_PY <dbl>,
+    ## #   MMEAN_STSC_RH_PY <dbl>, MMEAN_MSC_RH_PY <dbl>, MMEAN_SSC_RH_PY <dbl>,
+    ## #   MMEAN_PSC_RH_PY <dbl>, MMEAN_NEP_PY <dbl>, MMEAN_RK4STEP_PY <dbl>,
+    ## #   MMEAN_AVAILABLE_WATER_PY <dbl>, MMEAN_VEG_DISPLACE_PY <dbl>,
+    ## #   MMEAN_ROUGH_PY <dbl>, MMEAN_CAN_THEIV_PY <dbl>, MMEAN_CAN_THETA_PY <dbl>,
+    ## #   MMEAN_CAN_VPDEF_PY <dbl>, MMEAN_CAN_TEMP_PY <dbl>, MMEAN_CAN_SHV_PY <dbl>,
+    ## #   MMEAN_CAN_CO2_PY <dbl>, MMEAN_CAN_RHOS_PY <dbl>, MMEAN_CAN_DMOL_PY <dbl>,
+    ## #   MMEAN_CAN_PRSS_PY <dbl>, MMEAN_GND_TEMP_PY <dbl>, MMEAN_GND_SHV_PY <dbl>,
+    ## #   MMEAN_CAN_GGND_PY <dbl>, MMEAN_SFCW_DEPTH_PY <dbl>,
+    ## #   MMEAN_SFCW_ENERGY_PY <dbl>, MMEAN_SFCW_MASS_PY <dbl>,
+    ## #   MMEAN_SFCW_TEMP_PY <dbl>, MMEAN_SFCW_FLIQ_PY <dbl>,
+    ## #   MMEAN_RSHORT_GND_PY <dbl>, MMEAN_PAR_GND_PY <dbl>,
+    ## #   MMEAN_RLONG_GND_PY <dbl>, MMEAN_RLONGUP_PY <dbl>, …
 
 ``` r
 plot(MMEAN_GPP_PY ~ datetime, data = scalar_results, type = "o",
@@ -198,21 +234,31 @@ pft_results
 ```
 
     ## # A tibble: 204 x 43
-    ##    basename df_scalar df_cohort df_soil datetime              pft NPLANT_PY AGB_PY WAI_PY BASAL_AREA_PY BDEADA_PY BDEADB_PY BTIMBER_PY BSAPWOODA_PY BSAPWOODB_PY BSEEDS_PY BYIELD_PY BDEADA_N_PY BDEADB_N_PY BSAPWOODA_N_PY BSAPWOODB_N_PY
-    ##    <chr>    <list>    <list>    <list>  <dttm>              <int>     <dbl>  <dbl>  <dbl>         <dbl>     <dbl>     <dbl>      <dbl>        <dbl>        <dbl>     <dbl>     <dbl>       <dbl>       <dbl>          <dbl>          <dbl>
-    ##  1 test-ed… <tibble … <tibble … <tibbl… 2000-01-01 00:00:00     1         0      0      0             0         0         0          0            0            0         0         0           0           0              0              0
-    ##  2 test-ed… <tibble … <tibble … <tibbl… 2000-01-01 00:00:00     2         0      0      0             0         0         0          0            0            0         0         0           0           0              0              0
-    ##  3 test-ed… <tibble … <tibble … <tibbl… 2000-01-01 00:00:00     3         0      0      0             0         0         0          0            0            0         0         0           0           0              0              0
-    ##  4 test-ed… <tibble … <tibble … <tibbl… 2000-01-01 00:00:00     4         0      0      0             0         0         0          0            0            0         0         0           0           0              0              0
-    ##  5 test-ed… <tibble … <tibble … <tibbl… 2000-01-01 00:00:00     5         0      0      0             0         0         0          0            0            0         0         0           0           0              0              0
-    ##  6 test-ed… <tibble … <tibble … <tibbl… 2000-01-01 00:00:00     6         0      0      0             0         0         0          0            0            0         0         0           0           0              0              0
-    ##  7 test-ed… <tibble … <tibble … <tibbl… 2000-01-01 00:00:00     7         0      0      0             0         0         0          0            0            0         0         0           0           0              0              0
-    ##  8 test-ed… <tibble … <tibble … <tibbl… 2000-01-01 00:00:00     8         0      0      0             0         0         0          0            0            0         0         0           0           0              0              0
-    ##  9 test-ed… <tibble … <tibble … <tibbl… 2000-01-01 00:00:00     9         0      0      0             0         0         0          0            0            0         0         0           0           0              0              0
-    ## 10 test-ed… <tibble … <tibble … <tibbl… 2000-01-01 00:00:00    10         0      0      0             0         0         0          0            0            0         0         0           0           0              0              0
-    ## # … with 194 more rows, and 22 more variables: BSEEDS_N_PY <dbl>, MMEAN_THBARK_PY <dbl>, MMEAN_LAI_PY <dbl>, MMEAN_BLEAF_PY <dbl>, MMEAN_BROOT_PY <dbl>, MMEAN_BBARKA_PY <dbl>, MMEAN_BBARKB_PY <dbl>, MMEAN_BALIVE_PY <dbl>,
-    ## #   MMEAN_BSTORAGE_PY <dbl>, MMEAN_BLEAF_N_PY <dbl>, MMEAN_BROOT_N_PY <dbl>, MMEAN_BBARKA_N_PY <dbl>, MMEAN_BBARKB_N_PY <dbl>, MMEAN_BALIVE_N_PY <dbl>, MMEAN_BSTORAGE_N_PY <dbl>, MMEAN_LEAF_MAINTENANCE_PY <dbl>,
-    ## #   MMEAN_ROOT_MAINTENANCE_PY <dbl>, MMEAN_BARKA_MAINTENANCE_PY <dbl>, MMEAN_BARKB_MAINTENANCE_PY <dbl>, MMEAN_LEAF_DROP_PY <dbl>, MMEAN_ROOT_DROP_PY <dbl>, outdir <chr>
+    ##    basename df_scalar df_cohort df_soil datetime              pft NPLANT_PY
+    ##    <chr>    <list>    <list>    <list>  <dttm>              <int>     <dbl>
+    ##  1 test-ed… <tibble … <tibble … <tibbl… 2000-01-01 00:00:00     1    0.0771
+    ##  2 test-ed… <tibble … <tibble … <tibbl… 2000-01-01 00:00:00     2    0.0771
+    ##  3 test-ed… <tibble … <tibble … <tibbl… 2000-01-01 00:00:00     3    0.0773
+    ##  4 test-ed… <tibble … <tibble … <tibbl… 2000-01-01 00:00:00     4    0.0775
+    ##  5 test-ed… <tibble … <tibble … <tibbl… 2000-01-01 00:00:00     5    0     
+    ##  6 test-ed… <tibble … <tibble … <tibbl… 2000-01-01 00:00:00     6    0     
+    ##  7 test-ed… <tibble … <tibble … <tibbl… 2000-01-01 00:00:00     7    0     
+    ##  8 test-ed… <tibble … <tibble … <tibbl… 2000-01-01 00:00:00     8    0     
+    ##  9 test-ed… <tibble … <tibble … <tibbl… 2000-01-01 00:00:00     9    0     
+    ## 10 test-ed… <tibble … <tibble … <tibbl… 2000-01-01 00:00:00    10    0     
+    ## # … with 194 more rows, and 36 more variables: AGB_PY <dbl>, WAI_PY <dbl>,
+    ## #   BASAL_AREA_PY <dbl>, BDEADA_PY <dbl>, BDEADB_PY <dbl>, BTIMBER_PY <dbl>,
+    ## #   BSAPWOODA_PY <dbl>, BSAPWOODB_PY <dbl>, BSEEDS_PY <dbl>, BYIELD_PY <dbl>,
+    ## #   BDEADA_N_PY <dbl>, BDEADB_N_PY <dbl>, BSAPWOODA_N_PY <dbl>,
+    ## #   BSAPWOODB_N_PY <dbl>, BSEEDS_N_PY <dbl>, MMEAN_THBARK_PY <dbl>,
+    ## #   MMEAN_LAI_PY <dbl>, MMEAN_BLEAF_PY <dbl>, MMEAN_BROOT_PY <dbl>,
+    ## #   MMEAN_BBARKA_PY <dbl>, MMEAN_BBARKB_PY <dbl>, MMEAN_BALIVE_PY <dbl>,
+    ## #   MMEAN_BSTORAGE_PY <dbl>, MMEAN_BLEAF_N_PY <dbl>, MMEAN_BROOT_N_PY <dbl>,
+    ## #   MMEAN_BBARKA_N_PY <dbl>, MMEAN_BBARKB_N_PY <dbl>, MMEAN_BALIVE_N_PY <dbl>,
+    ## #   MMEAN_BSTORAGE_N_PY <dbl>, MMEAN_LEAF_MAINTENANCE_PY <dbl>,
+    ## #   MMEAN_ROOT_MAINTENANCE_PY <dbl>, MMEAN_BARKA_MAINTENANCE_PY <dbl>,
+    ## #   MMEAN_BARKB_MAINTENANCE_PY <dbl>, MMEAN_LEAF_DROP_PY <dbl>,
+    ## #   MMEAN_ROOT_DROP_PY <dbl>, outdir <chr>
 
 ``` r
 plot(MMEAN_LAI_PY ~ datetime, data = pft_results, col = pft, pch = 19,
