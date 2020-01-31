@@ -1972,8 +1972,8 @@ WFLUX_GW_LAYER,Instantaneous - Water flux from ground to wood,kg/s,"nzg,icohort"
 FMEAN_WFLUX_GW_LAYER_CO,Sub-daily mean - Water flux from ground to wood,kg/s,"nzg,icohort",npts,FALSE,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,cpatch%coglob_id,FMEAN_WFLUX_GW_LAYER_CO       :42://trim(fast_keys)
 DMEAN_WFLUX_GW_LAYER_CO,Daily mean - Water flux from ground to wood,kg/s,"nzg,icohort",npts,FALSE,FALSE,TRUE,FALSE,FALSE,FALSE,FALSE,cpatch%coglob_id,DMEAN_WFLUX_GW_LAYER_CO       :42://trim(dail_keys)
 MMEAN_WFLUX_GW_LAYER_CO,Monthly mean - Water flux from ground to wood,kg/s,"nzg,icohort",npts,FALSE,FALSE,FALSE,TRUE,TRUE,FALSE,FALSE,cpatch%coglob_id,MMEAN_WFLUX_GW_LAYER_CO       :42://trim(eorq_keys)
-MORT_RATE_CO,Mortality rates,1/yr,icohort,npts,TRUE,FALSE,TRUE,FALSE,FALSE,FALSE,FALSE,cpatch%coglob_id,MORT_RATE_CO :48:hist:dail
-MMEAN_MORT_RATE_CO,Monthly mean mortality rate,1/yr,icohort,npts,FALSE,FALSE,FALSE,TRUE,TRUE,FALSE,FALSE,cpatch%coglob_id,MMEAN_MORT_RATE_CO :48://trim(eorq_keys)
+MORT_RATE_CO,Mortality rates,1/yr,"imort,icohort",npts,TRUE,FALSE,TRUE,FALSE,FALSE,FALSE,FALSE,cpatch%coglob_id,MORT_RATE_CO :48:hist:dail
+MMEAN_MORT_RATE_CO,Monthly mean mortality rate,1/yr,"imort,icohort",npts,FALSE,FALSE,FALSE,TRUE,TRUE,FALSE,FALSE,cpatch%coglob_id,MMEAN_MORT_RATE_CO :48://trim(eorq_keys)
 CB,carbon balance previous 12 months+current,kgC/plant,13 - icohort,npts,TRUE,FALSE,FALSE,TRUE,TRUE,TRUE,FALSE,cpatch%coglob_id,CB :491:hist:mont:dcyc:year
 CB_LIGHTMAX,Full light carbon balance last 12 months+current,kgC/plant,13 - icohort,npts,TRUE,FALSE,FALSE,TRUE,TRUE,TRUE,FALSE,cpatch%coglob_id,CB_LIGHTMAX :491:hist:mont:dcyc:year
 CB_MOISTMAX,Full moisture carbon balance last 12 months+current,kgC/plant,13 - icohort,npts,TRUE,FALSE,FALSE,TRUE,TRUE,TRUE,FALSE,cpatch%coglob_id,CB_MOISTMAX :491:hist:mont:dcyc:year

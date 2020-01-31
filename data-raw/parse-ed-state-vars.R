@@ -147,6 +147,16 @@ ed2_variables <- bind_cols(vtable_args, meta_args) %>%
       variable == "RUNOFF" ~ "kg/m2/s",
       variable == "QRUNOFF" ~ "kg/m2/s",
       TRUE ~ unit
+    ),
+    dimensions = case_when(
+      variable == "PFT" ~ "icohort",
+      variable == "KRDEPTH" ~ "icohort",
+      variable == "NPLANT" ~ "icohort",
+      variable == "CBR_BAR" ~ "icohort",
+      variable == "PAW_AVG" ~ "icohort",
+      variable == "MMEAN_MORT_RATE_CO" ~ "imort,icohort",
+      variable == "MORT_RATE_CO" ~ "imort,icohort",
+      TRUE ~ dimensions
     )
   )
 

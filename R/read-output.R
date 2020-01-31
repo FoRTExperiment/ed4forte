@@ -26,10 +26,18 @@ read_monthly_file <- function(fname, .pb = NULL) {
     rad_profile <- ncdf4::ncvar_get(hf, "MMEAN_RAD_PROFILE_CO") %>%
       t() %>%
       `colnames<-`(c("par_beam_down", "par_beam_up", "par_diff_down",
-                     "par_diff_up", "nir_beam_down", "nir_beam_up", "nir_diff_down",
+                     "par_diff_up", "nir_beam_down",
+                     "nir_beam_up", "nir_diff_down",
                      "nir_diff_up", "tir_diff_down", "tir_diff_up")) %>%
       tibble::as_tibble()
-    cohort_out <- tibble::tibble(datetime = dt, !!!cohort_data, !!!rad_profile)
+    mort_rates <- ncdf4::ncvar_get(hf, "MMEAN_MORT_RATE_CO") %>%
+      t() %>%
+      `colnames<-`(paste0("mmean_mort_rate_co_", c("aging", "carbon",
+                                                "treefall", "cold",
+                                                "disturbance"))) %>%
+      tibble::as_tibble()
+    cohort_out <- tibble::tibble(datetime = dt, !!!cohort_data,
+                                 !!!rad_profile, !!!mort_rates)
   } else {
     warning("File ", fname, " has no cohort data!")
     cohort_out <- NULL
