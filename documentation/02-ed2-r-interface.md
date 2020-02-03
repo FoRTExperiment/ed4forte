@@ -266,3 +266,99 @@ plot(MMEAN_LAI_PY ~ datetime, data = pft_results, col = pft, pch = 19,
 ```
 
 ![](02-ed2-r-interface_files/figure-gfm/read-outputs-2.png)<!-- -->
+
+# Configuring ED2 runs
+
+ED2 runs are configured using two files: `ED2IN` is a Fortran namelist
+file generally used for settings that affect the entire run (e.g. start
+and end dates; integration timestep; submodel configurations). A
+reference `ED2IN` with documentation and default values (lightly tweaked
+for FoRTE) is in the [`inst/ED2IN`](../inst/ED2IN) file. `config.xml` is
+an XML file that contains PFT-specific parameters, plus a few others. A
+complete example featuring all of the ED2 default values can be found in
+the
+[`inst/ed2-default-parameters.xml`](../inst/ed2-default-parameters.xml)
+file. Confusingly, some parameters can be set from both the `config.xml`
+and the `ED2IN` – where both are used, parameters in the `config.xml`
+override the `ED2IN` values.
+
+Both sets of parameters can be modified through the `run_ed2` function.
+To modify `ED2IN` values, pass the name of the tag (without the leading
+`NL%`) directly as an argument to `run_ed2`. For instance, in the below
+example, we modify the `ED_MET_DRIVER_HEADER` and `CROWN_MOD` tags.
+
+``` r
+run_ed2(
+  outdir, start_dt, end_dt,
+  ED_MET_DRIVER_HEADER = "/path/to/ED_MET_DRIVER_HEADER",
+  CROWN_MOD = 1
+)
+```
+
+To see the default values of the `ED2IN` file, and for some
+documentation about what they mean,
+
+The parameter configuration XML file (typically called `config.xml`) can
+be configured via the `configxml` argument, which can be either a path
+to a complete `config.xml` file or (probably easier) a `list` of values.
+For example:
+
+``` r
+run_ed2(
+  outdir, start_dt, end_dt,
+  configxml = list(
+    pft = list(num = 9, SLA = 35),
+    pft = list(num = 10, Vm0 = 27.4),
+    phenology = list(theta_crit = -1.25)
+  ),
+  ED_MET_DRIVER_HEADER = "/path/to/ED_MET_DRIVER_HEADER"
+)
+```
+
+Note the format: A nested list of lists, with the name of each
+first-level list indicating the *type* of parameter and each sub-list
+consisting of name-value pairs. In the above example, we are setting the
+SLA of PFT number 9 (Temperate Early-successional Hardwood) to 35 and
+the Vcmax of PFT 10 (Temperate Mid-successional Hardwood) to 27.4, as
+well as setting the PFT-independent phenology submodel parameter
+`theta_crit` to -1.25.
+
+Because the most common use of the `config.xml` is setting PFT
+parameters, which may be well-suited to a tabular data structure, you
+can also pass parameters as a `data.frame` (but only if you’re *only*
+setting PFT parameters — if you have a mix of PFT parameters and other
+values, you need to give the explicit nested list. Also, for this to
+work, the same set of PFT parameters has to be set for all PFTs.):
+
+``` r
+run_ed2(
+  outdir, start_dt, end_dt,
+  configxml = data.frame(
+    num = c(9, 10),
+    SLA = c(35.3, 38.2),
+    Vm0 = c(27.4, 24.3)
+  ),
+  ED_MET_DRIVER_HEADER = "/path/to/ED_MET_DRIVER_HEADER"
+)
+```
+
+If ED2 finds and reads a `config.xml` file, it will also write out a
+file called `history.xml` in the same directory that contains a complete
+list of all parameters and values used. This is useful for figuring out
+what ED2’s default parameters are, and confirming that parameters from
+`config.xml` have been read in correctly. (The `history.xml` file from a
+test run is actually the basis for the `ed2-default-parameters.xml` file
+that ships with this package. Also, for a tabular version of the default
+PFT parameters, see the
+[inst/ed2-default-pft-parameters.csv](../inst/ed2-default-pft-parameters.csv)
+file).
+
+**NOTE**: A key difference between the `ED2IN` and `config.xml` files is
+how strictly they are parsed and how values unknown to ED2 are treated.
+The `ED2IN` file must be complete and have no values that ED2 does not
+know about – both missing entries and entries that ED2 doesn’t know
+about will result in errors during run initialization. On the other
+hand, unknown values in `config.xml` are *silently ignored* – i.e. ED2
+will only read in parameters that it knows about. This is why it’s a
+good idea to check the `history.xml` file to make sure that your
+parameters from the `config.xml` are being correctly set.
