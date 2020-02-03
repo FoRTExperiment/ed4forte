@@ -1602,7 +1602,7 @@ $ED_NL
    ! 16 - Tropical/subtropical C3 grass                                                    !
    ! 17 - (Beta) Lianas                                                                    !
    !---------------------------------------------------------------------------------------!
-   NL%INCLUDE_THESE_PFT = 1,2,3,4,16
+   NL%INCLUDE_THESE_PFT = 5,6,7,8,9,10,11
    NL%PASTURE_STOCK     = 1
    NL%AGRI_STOCK        = 1
    NL%PLANTATION_STOCK  = 3
