@@ -13,7 +13,7 @@ xml_list2df <- function(xml_list) {
 
 xdf <- tibble::tibble(
   type = names(xl),
-  values = purrr::map(xl, as_tibble)
+  values = purrr::map(xl, tibble::as_tibble)
 )
 
 simplify_xml <- function(x) {
@@ -22,7 +22,6 @@ simplify_xml <- function(x) {
     trimws() %>%
     readr::parse_guess()
 }
-
 
 pft_dat <- xdf %>%
   dplyr::filter(type == "pft") %>%
@@ -33,6 +32,10 @@ pft_dat <- xdf %>%
     names_to = "parameter",
     values_to = "value"
   )
+
+pft_dat %>%
+  dplyr::select(num, parameter, value) %>%
+  readr::write_csv(here::here("inst", "ed2-pft-defaults.csv"))
 
 other_dat <- xdf %>%
   dplyr::filter(type != "pft") %>%

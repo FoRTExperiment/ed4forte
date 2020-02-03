@@ -18,32 +18,23 @@ pdefault <- run_ed2(
 if (interactive()) tail(readLines(pdefault$get_output_file()))
 
 # Similar run, but create a mostly blank config file
-pblank_out <- file.path(basedir, "blank-config")
-dir.create(pblank_out, showWarnings = FALSE, recursive = TRUE)
-write_configxml(list(
-  list(num = 9, is_tropical = 0),
-  list(num = 10, is_tropical = 0),
-  list(num = 11, is_tropical = 0)
-), file.path(pblank_out, "config.xml"))
+blank_config <- tibble::tibble(
+  num = c(9, 10, 11),
+  is_tropical = 0
+)
 pblank_config <- run_ed2(
-  pblank_out,
+  file.path(basedir, "blank-config"),
   "1980-01-01", "1990-01-01",
-  ED_MET_DRIVER_DB = narr_met,
-  IEDCNFGF = file.path(pblank_out, "config.xml")
+  configxml = blank_config,
+  ED_MET_DRIVER_DB = narr_met
 )
 
 # Similar run, but create a mostly blank config file
 pquick_out <- file.path(basedir, "blank-config-quick")
-dir.create(pquick_out, showWarnings = FALSE, recursive = TRUE)
-write_configxml(list(
-  list(num = 9, is_tropical = 0),
-  list(num = 10, is_tropical = 0),
-  list(num = 11, is_tropical = 0)
-), file.path(pquick_out, "config.xml"))
 pquick_config <- run_ed2(
   pquick_out,
   "1980-01-01", "1980-01-05",
+  configxml = blank_config,
   ED_MET_DRIVER_DB = narr_met,
-  IEDCNFGF = file.path(pquick_out, "config.xml")
 )
 if (interactive()) tail(readLines(pquick_config$get_output_file()))
