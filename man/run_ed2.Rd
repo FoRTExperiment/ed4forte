@@ -8,6 +8,7 @@ run_ed2(
   outdir,
   start_dt,
   end_dt,
+  configxml = NULL,
   ed2_exe = getOption("ed4forte.ed2_exe"),
   wd = NULL,
   env = NULL,
@@ -23,6 +24,9 @@ run_ed2(
 \item{start_dt, end_dt}{Start and end date-times of simulation. Can be given
 as POSIX(ct/lt), or character (in which case, they will be converted via
 \code{\link[base:as.POSIXct]{base::as.POSIXct()}}).}
+
+\item{configxml}{A \code{list} (or \code{data.frame}) of parameter values (see
+\code{\link[=write_configxml]{write_configxml()}}) or the path to a configuration XML file.}
 
 \item{wd}{Process working directory (default, \code{NULL}, means current working
 directory). See \link[processx:process]{processx::process}.}

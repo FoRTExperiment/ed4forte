@@ -7,6 +7,8 @@
 #' @param start_dt,end_dt Start and end date-times of simulation. Can be given
 #'   as POSIX(ct/lt), or character (in which case, they will be converted via
 #'   [base::as.POSIXct()]).
+#' @param configxml A `list` (or `data.frame`) of parameter values (see
+#'   [write_configxml()]) or the path to a configuration XML file.
 #' @param wd Process working directory (default, `NULL`, means current working
 #'   directory). See [processx::process].
 #' @param env Process environment variables (default, `NULL`, means inherit
@@ -17,6 +19,7 @@
 #' @author Alexey Shiklomanov
 #' @export
 run_ed2 <- function(outdir, start_dt, end_dt,
+                    configxml = NULL,
                     ed2_exe = getOption("ed4forte.ed2_exe"),
                     wd = NULL,
                     env = NULL,
@@ -28,8 +31,8 @@ run_ed2 <- function(outdir, start_dt, end_dt,
   dir.create(outdir, showWarnings = FALSE, recursive = TRUE)
   if (!inherits(start_dt, "POSIX")) start_dt <- as.POSIXct(start_dt, tz = tz)
   if (!inherits(end_dt, "POSIX")) end_dt <- as.POSIXct(end_dt, tz = tz)
-  settings <- ed2in(
-    !!!rlang::list2(...),
+
+  ed2in_default <- list(
     # Start date
     IYEARA = as.numeric(format(start_dt, "%Y")),
     IMONTHA = as.numeric(format(start_dt, "%m")),
@@ -44,6 +47,26 @@ run_ed2 <- function(outdir, start_dt, end_dt,
     FFILOUT = file.path(outdir, "analysis"),
     SFILOUT = file.path(outdir, "history")
   )
+
+  configfile <- NULL
+  if (!is.null(configxml)) {
+    if (is.character(configxml)) {
+      stopifnot(file.exists(configxml))
+      configfile <- configxml
+    } else if (is.list(configxml)) {
+      configfile <- file.path(outdir, "config.xml")
+      write_configxml(configxml, configfile)
+    }
+  }
+
+  if (!is.null(configfile)) {
+    ed2in_default[["IEDCNFGF"]] <- configfile
+  }
+
+  ed2in_args <- modifyList(ed2in_default, rlang::list2(...))
+
+  settings <- ed2in(!!!ed2in_args)
+
   settings_file <- file.path(outdir, "ED2IN")
   write_ed2in(settings, settings_file)
   processx::process$new(
