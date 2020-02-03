@@ -78,3 +78,16 @@ run_ed2 <- function(outdir, start_dt, end_dt,
     ## post_process = function() read_efile_dir(outdir)
   )
 }
+
+#' Get the status of an ED2 run
+#'
+#' @param proc ED2 process, as returned by [run_ed2()]
+#' @param n Number of output lines to print. Default = 10.
+#' @return (Logical) Whether or not the process is still running
+#' @author Alexey Shiklomanov
+#' @export
+get_status <- function(proc, n = 10) {
+  print(proc)
+  writeLines(tail(readLines(proc$get_output_file()), n))
+  invisible(proc$is_alive())
+}
