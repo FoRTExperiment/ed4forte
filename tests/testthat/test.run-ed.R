@@ -1,17 +1,13 @@
 outdir <- tempfile()
 teardown(unlink(outdir, recursive = TRUE))
 
-start_date <- "2004-07-01"
-end_date <- "2004-08-31"
-nmonths <- 1
-
-test_that("Running ED2 works", {
+test_that("Running ED2 from bare ground works", {
 
   p <- run_ed2(
     outdir, start_date, end_date,
     configxml = data.frame(num = 9, SLA = 35),
-    wd = here::here("tests", "testthat"),
-    ED_MET_DRIVER_DB = file.path("test-meteorology", "ED_MET_DRIVER_HEADER"),
+    wd = wd,
+    ED_MET_DRIVER_DB = test_met
   )
   p$wait()
 
