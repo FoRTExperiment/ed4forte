@@ -4,3 +4,6 @@
 ^scripts/
 ^unsynced-data/
 ^data-raw/
+^extdata/
+^figures/
+^output/
