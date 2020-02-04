@@ -9,6 +9,7 @@ test_that("Running ED2 with FoRTE inventories works", {
     configxml = data.frame(num = 9, SLA = 35),
     wd = wd,
     ED_MET_DRIVER_DB = test_met,
+    IED_INIT_MODE = 6,
     SFILIN = sfilin
   )
   p$wait()
