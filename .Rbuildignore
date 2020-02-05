@@ -7,3 +7,6 @@
 ^extdata/
 ^figures/
 ^output/
+^.*\.Rproj$
+^\.Rproj\.user$
+^extra-materials/
