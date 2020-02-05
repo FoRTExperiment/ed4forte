@@ -13,6 +13,9 @@
 #'   directory). See [processx::process].
 #' @param env Process environment variables (default, `NULL`, means inherit
 #'   current environment). See [processx::process].
+#' @param overwrite TRUE/FALSE/NULL arguments indicating if old outputs in the outdir 
+#' should be deleted before running. The deafult is set to NULL and will prompt the 
+#' user about what to do. 
 #' @inheritParams base::as.POSIXct
 #' @return A [processx::process()] object corresponding to the running ED2
 #'   process.
@@ -26,12 +29,22 @@ run_ed2 <- function(outdir, start_dt, end_dt,
                     stdout = file.path(outdir, "stdout.log"),
                     stderr = file.path(outdir, "stderr.log"),
                     tz = "UTC",
+                    overwrite = NULL,
                     ...) {
   stopifnot(!is.null(ed2_exe), file.exists(ed2_exe))
   dir.create(outdir, showWarnings = FALSE, recursive = TRUE)
+  h5_files <- list.files(outdir, '.h5')
+  if(length(h5_files) > 0 && is.null(overwrite)){
+    overwrite <- askYesNo(msg = paste0(outdir, ' contains already contains ed output do you want to delete these files before proceeding?'))
+  } 
+  if(!is.null(overwrite) && isTRUE(overwrite)){
+    file.remove(h5_files)
+  } else if(!is.null(overwrite) && is.na(overwrite)){
+    stop('run canceled') 
+  }
   if (!inherits(start_dt, "POSIX")) start_dt <- as.POSIXct(start_dt, tz = tz)
   if (!inherits(end_dt, "POSIX")) end_dt <- as.POSIXct(end_dt, tz = tz)
-
+  
   ed2in_default <- list(
     # Start date
     IYEARA = as.numeric(format(start_dt, "%Y")),
@@ -47,7 +60,7 @@ run_ed2 <- function(outdir, start_dt, end_dt,
     FFILOUT = file.path(outdir, "analysis"),
     SFILOUT = file.path(outdir, "history")
   )
-
+  
   configfile <- NULL
   if (!is.null(configxml)) {
     if (is.character(configxml)) {
@@ -58,15 +71,15 @@ run_ed2 <- function(outdir, start_dt, end_dt,
       write_configxml(configxml, configfile)
     }
   }
-
+  
   if (!is.null(configfile)) {
     ed2in_default[["IEDCNFGF"]] <- configfile
   }
-
+  
   ed2in_args <- modifyList(ed2in_default, rlang::list2(...))
-
+  
   settings <- ed2in(!!!ed2in_args)
-
+  
   settings_file <- file.path(outdir, "ED2IN")
   write_ed2in(settings, settings_file)
   processx::process$new(

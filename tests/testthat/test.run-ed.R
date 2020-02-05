@@ -47,3 +47,33 @@ test_that("Reading ED2 monthly output works", {
   )
   expect_true(file.exists(file.path(outdir, "monthly-output.rds")))
 })
+
+
+# Test the overwrite argument. 
+ptrue <- run_ed2(
+  file.path(basedir, "default"),
+  "1980-01-01", "1990-01-01",
+  ED_MET_DRIVER_DB = narr_met, 
+  overwrite = TRUE
+)
+
+pNull <- run_ed2(
+  file.path(basedir, "default"),
+  "1980-01-01", "1990-01-01",
+  ED_MET_DRIVER_DB = narr_met, 
+  overwrite = NULL
+)
+
+pFalse <- run_ed2(
+  file.path(basedir, "default"),
+  "1980-01-01", "1990-01-01",
+  ED_MET_DRIVER_DB = narr_met, 
+  overwrite = FALSE
+)
+
+testthat::expect_error({pError <- run_ed2(
+  file.path(basedir, "default"),
+  "1980-01-01", "1990-01-01",
+  ED_MET_DRIVER_DB = narr_met, 
+  overwrite = NA
+)}, 'run canceled')
