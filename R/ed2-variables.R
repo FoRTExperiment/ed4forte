@@ -98,6 +98,11 @@ ed2_variable_info <- function(variables = NULL) {
       glob_id = "c", info_string = "c"
     )
   )
+   exmple_out <- readRDS(system.file('monthly-output.rds', package = 'ed4forte'))
+   result[['df_scalar']] <- exmple_out[['variable']] %in% names(exmple_out[['df_scalar']][[1]])
+   result[['df_cohort']] <- exmple_out[['variable']] %in% names(exmple_out[['df_cohort']][[1]])
+   result[['df_soil']] <- exmple_out[['variable']] %in% names(exmple_out[['df_soil']][[1]])
+   result[['df_pft']] <- exmple_out[['variable']] %in% names(exmple_out[['df_pft']][[1]])
   if (!is.null(variables)) {
     result <- dplyr::filter(result, variable %in% variables)
     missing_vars <- setdiff(variables, result$variable)
