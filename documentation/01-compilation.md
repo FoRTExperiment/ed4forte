@@ -241,6 +241,8 @@ For more info on how this works, see the `EDTS/README.md` file.
 This test produces monthly output files that will be stored in `EDTS/test-outputs/umbs.bg/`.
 Here is an example R script that reads NPP, GPP, and autotrophic and heterotrophic respiration from these files and generates a simple plot.
 
+PIC NOTE: In order for the `run-test.sh` script to work with `ed_2.2-opt` the permissions on this file will have to be changed so that it is exectuable (see https://kb.iu.edu/d/abdb for how to do this). If this step is skipped you will probably see some error messages related to permissions. 
+
 ``` r
 library(ncdf4)
 
