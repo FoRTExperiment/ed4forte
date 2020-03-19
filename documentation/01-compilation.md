@@ -147,7 +147,7 @@ It's a good idea to do all of these steps in a new directory -- I'll call it `~/
 First, copy the existing `include.mk.gfortran` file.
 
     ```sh
-    cp ED/build/make/include.mk.gfortran ED/build/make/include.mk.pic
+    cp ./ED/build/make/include.mk.gfortran ./ED/build/make/include.mk.pic
     ```
 
     Now, open the file in a text editor (I assume `vim`)...
@@ -158,7 +158,7 @@ First, copy the existing `include.mk.gfortran` file.
 
     ...and make the following changes:
 
-    (1) Set the `HDF5_HOME` value to `/your/home/directory/custom-hdf5`, replacing `/your/home/directory` with the absolute path of your home directory (you can find it out by `cd ~` followed by `pwd`).
+    (1) Set the `HDF5_HOME` value to `/your/home/directory/custom-hdf5/lib`, replacing `/your/home/directory` with the absolute path of your home directory (you can find it out by `cd ~` followed by `pwd`).
 
     (2) Add the following to the beginning of `HDF5_LIBS`: `-L${HDF5_HOME}/lib`.
     It should now look like `HDF5_LIBS=-L${HDF5_HOME}/lib -lhdf5 -lhdf5_fortran -lhdf5_hl -lz`.
@@ -212,7 +212,7 @@ Such a script (let's call it `ED/build/ed2`) might look something like this:
     ulimit -s unlimited
 
     # Add the custom HDF5 library path to the library search path
-    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/your/home/directory/custom-hdf5
+    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/your/home/directory/custom-hdf5/lib
 
     # Run ED2, passing all command line arguments to it
     # (`$@` means "all arguments to the current script").
